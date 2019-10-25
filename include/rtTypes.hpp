@@ -12,6 +12,7 @@
 
     class CustomConfigMapAllocator;
     class DynamicConfigMemory;
+    class DebugOut;
     class Exception;
 
     using String = std::string;
