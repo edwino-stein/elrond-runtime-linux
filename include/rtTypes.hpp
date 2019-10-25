@@ -7,6 +7,7 @@
     #include <string>
     #include <memory>
     #include <functional>
+    #include <algorithm>
 
     #include "config/json.hpp"
 
@@ -17,6 +18,7 @@
     class RuntimeApp;
     class DebugOut;
     class ModuleFactory;
+    class InternalModuleFactory;
     class Exception;
 
     using String = std::string;

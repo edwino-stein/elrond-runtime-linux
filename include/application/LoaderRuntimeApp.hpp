@@ -9,6 +9,7 @@
 
         protected:
 
+            static void initInternalFactories(Vector<ModuleFactoryP> &factories);
             static ModuleFactoryP findFactory(String name, Vector<ModuleFactoryP> &factories, elrond::interfaces::RuntimeInterface *app);
 
             void parseModules(Json &cfg);
