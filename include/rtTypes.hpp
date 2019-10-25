@@ -9,5 +9,6 @@
     #include <functional>
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
+    using signalCallbackT = std::function<void()>;
 
 #endif
