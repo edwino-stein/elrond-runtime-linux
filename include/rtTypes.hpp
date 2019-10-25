@@ -21,6 +21,7 @@
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
     class ModuleHandle;
+    class RxChCollection;
     class Exception;
 
     using String = std::string;
@@ -28,6 +29,7 @@
     using Json = nlohmann::json;
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
+    using RxChCollectionP = std::unique_ptr<RxChCollection>;
     using signalCallbackT = std::function<void()>;
     using modCreateT = elrond::interfaces::ModuleInterface* (*)();
     using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
