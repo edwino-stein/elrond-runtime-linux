@@ -5,6 +5,8 @@
 #include "modules/DlModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
 
+#include "modules/VirtualGpio.hpp"
+
 using elrond::interfaces::RuntimeInterface;
 using elrond::modules::Example;
 using elrond::modules::Loopback;
@@ -82,6 +84,12 @@ void LoaderRuntimeApp::initInternalFactories(Vector<ModuleFactoryP> &factories){
     factories.push_back(
         std::make_shared<InternalModuleFactory<Servo>>(
             Servo::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<VirtualGpio>>(
+            VirtualGpio::_getInternalName()
         )
     );
 }

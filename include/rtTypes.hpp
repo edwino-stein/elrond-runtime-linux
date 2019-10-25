@@ -26,6 +26,8 @@
     class ChannelManager;
     class Exception;
 
+    class VirtualGpio;
+
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
     using Json = nlohmann::json;
