@@ -31,7 +31,33 @@ void RuntimeApp::run(){
     this->startModules();
 
     std::cout << " * Application running (CTRL+C to stop)..." << '\n';
-    while(this->loop){}
+
+    Vector<ModuleHandleP> syncLoopMods;
+
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [&syncLoopMods](ModuleHandleP mh){
+
+            if(!mh->module->getLoopControl().allow) return;
+
+            if(mh->module->getLoopControl().async){
+                mh->asyncRun();
+                return;
+            }
+
+            syncLoopMods.push_back(mh);
+            mh->syncLoop();
+        }
+    );
+
+    while(this->loop){
+        std::for_each(
+            syncLoopMods.begin(),
+            syncLoopMods.end(),
+            [](ModuleHandleP mh){ mh->syncLoop(); }
+        );
+    }
 }
 
 void RuntimeApp::stop(bool force){
