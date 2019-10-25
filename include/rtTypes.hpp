@@ -8,6 +8,7 @@
     #include <memory>
     #include <functional>
     #include <algorithm>
+    #include <thread>
 
     #include "config/json.hpp"
 
@@ -22,14 +23,17 @@
     class DlModuleFactory;
     class ModuleHandle;
     class RxChCollection;
+    class ChannelManager;
     class Exception;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
     using Json = nlohmann::json;
+    using Thread = std::thread;
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
     using RxChCollectionP = std::unique_ptr<RxChCollection>;
+    using ChannelManagerP = std::shared_ptr<ChannelManager>;
     using signalCallbackT = std::function<void()>;
     using modCreateT = elrond::interfaces::ModuleInterface* (*)();
     using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);

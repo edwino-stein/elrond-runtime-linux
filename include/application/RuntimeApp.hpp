@@ -9,7 +9,12 @@
         protected:
             ModuleInfo info;
             bool loop = true;
+            Vector<ChannelManagerP> chmgrs;
+
             static void readJsonFromFile(String file, Json &json);
+
+            void parseOptions(Json &cfg);
+            void parseChmgrs(Json &cfg);
 
         public:
 
