@@ -39,6 +39,10 @@ void RuntimeApp::init(int argc, char const *argv[]){
 
     Json cfg;
     RuntimeApp::readJsonFromFile(argv[1], cfg);
+
+    if(!cfg["modules"].is_object()) throw Exception("JSON error", Exception("Missing \"modules\" JSON object"));
+
+    this->parseModules(cfg["modules"]);
 }
 
 BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const {

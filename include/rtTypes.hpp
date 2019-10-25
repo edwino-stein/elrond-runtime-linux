@@ -16,11 +16,13 @@
     class LoaderRuntimeApp;
     class RuntimeApp;
     class DebugOut;
+    class ModuleFactory;
     class Exception;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
     using Json = nlohmann::json;
+    using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using signalCallbackT = std::function<void()>;
 
     struct ModuleInfo {
