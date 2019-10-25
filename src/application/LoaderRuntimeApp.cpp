@@ -7,6 +7,7 @@
 
 #include "modules/VirtualGpio.hpp"
 #include "modules/Serial.hpp"
+#include "modules/Udp.hpp"
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::modules::Example;
@@ -97,6 +98,12 @@ void LoaderRuntimeApp::initInternalFactories(Vector<ModuleFactoryP> &factories){
     factories.push_back(
         std::make_shared<InternalModuleFactory<Serial>>(
             Serial::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Udp>>(
+            Udp::_getInternalName()
         )
     );
 

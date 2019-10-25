@@ -28,6 +28,7 @@
 
     class VirtualGpio;
     class Serial;
+    class Udp;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
