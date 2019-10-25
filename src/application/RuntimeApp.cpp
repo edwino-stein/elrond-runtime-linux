@@ -3,6 +3,7 @@
 #include <fstream>
 
 #include "exceptions/Exception.hpp"
+#include "modules/ModuleHandle.hpp"
 
 using elrond::channel::BaseChannelManager;
 
@@ -19,6 +20,9 @@ RuntimeApp::RuntimeApp() : LoaderRuntimeApp(){
 RuntimeApp::~RuntimeApp(){}
 
 void RuntimeApp::run(){
+
+    this->startModules();
+
     std::cout << " * Application running (CTRL+C to stop)..." << '\n';
     while(this->loop){}
 }
@@ -28,7 +32,14 @@ void RuntimeApp::stop(bool force){
     if(force) this->loop = true;
     if(!this->loop) return;
 
+    this->stopModules();
     this->loop = false;
+
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [&force](ModuleHandleP mh){ mh->asyncStop(!force); }
+    );
 }
 
 void RuntimeApp::init(int argc, char const *argv[]){
@@ -43,6 +54,7 @@ void RuntimeApp::init(int argc, char const *argv[]){
     if(!cfg["modules"].is_object()) throw Exception("JSON error", Exception("Missing \"modules\" JSON object"));
 
     this->parseModules(cfg["modules"]);
+    this->initModules(cfg["init"]);
 }
 
 BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const {

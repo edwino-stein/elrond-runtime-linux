@@ -9,7 +9,15 @@
         protected:
 
             DebugOut dgo;
+
+            Vector<ModuleHandleP> modules;
+
             static void jsonToCMA(Json &json, CustomConfigMapAllocator &cma);
+
+            ModuleHandleP findModule(String name) const;
+            void initModules(Json &cfg);
+            void startModules();
+            void stopModules();
 
         public:
 

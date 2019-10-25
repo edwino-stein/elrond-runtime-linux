@@ -3,6 +3,7 @@
 #include "exceptions/Exception.hpp"
 #include "config/DynamicConfigMemory.hpp"
 #include "config/CustomConfigMapAllocator.hpp"
+#include "modules/ModuleHandle.hpp"
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
@@ -15,13 +16,128 @@ using elrond::config::ConfigMap;
 BaseRuntimeApp::BaseRuntimeApp(){}
 BaseRuntimeApp::~BaseRuntimeApp(){}
 
+void BaseRuntimeApp::initModules(Json &cfg) {
+
+    std::cout << " * Initializing modules instances (" << this->modules.size() << ")..." << std::endl;
+
+    elrond::sizeT i = 1;
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [&cfg, &i](ModuleHandleP mh){
+
+            std::cout << "  #" << i++ << ": Initializing instance \"" <<  mh->name << "\"..." << std::endl;
+
+            DynamicConfigMemory dcm;
+            CustomConfigMapAllocator cma(dcm);
+            BaseRuntimeApp::jsonToCMA(cfg[mh->name], cma);
+
+            try{
+                mh->module->onInit(cma);
+            }
+            catch(Exception &e){
+                throw Exception(
+                    "An error occurred when initializing the instance \"" + mh->name +"\"",
+                    e
+                );
+            }
+        }
+    );
+}
+
+void BaseRuntimeApp::startModules(){
+    std::cout << " * Starting all modules instances..." << std::endl;
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){
+
+            try{
+                mh->module->onStart();
+            }
+            catch(Exception &e){
+                throw Exception(
+                    "An error occurred when starting the instance \"" + mh->name +"\"",
+                    e
+                );
+            }
+
+            mh->started = true;
+        }
+    );
+}
+
+void BaseRuntimeApp::stopModules(){
+
+    std::cout << " * Stopping all modules instances..." << std::endl;
+
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){
+            try{
+                if(mh->started){
+                    mh->started = false;
+                    mh->module->onStop();
+                }
+            }
+            catch(Exception &e){
+
+                Exception exp(
+                    "An error occurred when stopping the instance \"" + mh->name +"\"",
+                    e
+                );
+
+                std::cout << " * An error occurred" << std::endl;
+                std::cout << exp.what() << '\n';
+            }
+        }
+    );
+}
+
+ModuleHandleP BaseRuntimeApp::findModule(String name) const {
+
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [&name](ModuleHandleP mh){ return mh->name == name; }
+    );
+
+    return it != this->modules.end() ? *it : nullptr;
+}
 
 BaseGpioModule &BaseRuntimeApp::getGpioService() const {
 
-    return *((BaseGpioModule *) nullptr;
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){ return mh->module->getType() == elrond::ModuleType::GPIO; }
+    );
+
+    if(it == this->modules.end()){
+        throw Exception(
+            "Invalid gpio service",
+            Exception("No gpio service defined")
+        );
+    }
+
+    return *((BaseGpioModule *) (*it)->module);
 }
 
 BaseInputDriverModule &BaseRuntimeApp::getInputService(const elrond::sizeT id) const {
+
+    elrond::sizeT i = 0;
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [&id, &i](ModuleHandleP mod){
+            if(mod->module->getType() != elrond::ModuleType::INPUT) return false;
+            return (i++) == id;
+        }
+    );
+
+    if(it != this->modules.end()) return (BaseInputDriverModule &) *((*it)->module);
+
     throw Exception(
         "Invalid input service",
         Exception("The input service with index " + std::to_string(id) + " not found")

@@ -20,12 +20,14 @@
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
+    class ModuleHandle;
     class Exception;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
     using Json = nlohmann::json;
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
+    using ModuleHandleP = std::shared_ptr<ModuleHandle>;
     using signalCallbackT = std::function<void()>;
     using modCreateT = elrond::interfaces::ModuleInterface* (*)();
     using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
