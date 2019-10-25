@@ -10,6 +10,8 @@
 
     #include "config/json.hpp"
 
+    class CustomConfigMapAllocator;
+    class DynamicConfigMemory;
     class Exception;
 
     using String = std::string;
