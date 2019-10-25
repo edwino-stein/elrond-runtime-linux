@@ -7,10 +7,14 @@
     #include <string>
     #include <memory>
     #include <functional>
+
+    #include "config/json.hpp"
+
     class Exception;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
+    using Json = nlohmann::json;
     using signalCallbackT = std::function<void()>;
 
 #endif
