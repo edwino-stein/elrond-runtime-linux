@@ -18,7 +18,8 @@
     class RuntimeApp;
     class DebugOut;
     class ModuleFactory;
-    class InternalModuleFactory;
+    template<class T> class InternalModuleFactory;
+    class DlModuleFactory;
     class Exception;
 
     using String = std::string;
@@ -26,6 +27,11 @@
     using Json = nlohmann::json;
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using signalCallbackT = std::function<void()>;
+    using modCreateT = elrond::interfaces::ModuleInterface* (*)();
+    using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
+    using modSetAppT = void (*)(elrond::interfaces::RuntimeInterface *);
+    using modStringHandleT = const char * (*)();
+    using modIntHandleT = int (*)();
 
     struct ModuleInfo {
 

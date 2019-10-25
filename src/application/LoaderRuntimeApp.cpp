@@ -2,6 +2,7 @@
 
 #include "exceptions/Exception.hpp"
 #include "modules/InternalModuleFactory.hpp"
+#include "modules/DlModuleFactory.hpp"
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::modules::Example;
