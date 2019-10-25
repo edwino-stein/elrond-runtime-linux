@@ -7,6 +7,10 @@
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::modules::Example;
+using elrond::modules::Loopback;
+using elrond::modules::InputToChannel;
+using elrond::modules::DigitalLed;
+using elrond::modules::Servo;
 
 LoaderRuntimeApp::LoaderRuntimeApp() : BaseRuntimeApp(){}
 LoaderRuntimeApp::~LoaderRuntimeApp(){}
@@ -57,4 +61,27 @@ void LoaderRuntimeApp::initInternalFactories(Vector<ModuleFactoryP> &factories){
         )
     );
 
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Loopback>>(
+            Loopback::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<InputToChannel>>(
+            InputToChannel::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<DigitalLed>>(
+            DigitalLed::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Servo>>(
+            Servo::_getInternalName()
+        )
+    );
 }
