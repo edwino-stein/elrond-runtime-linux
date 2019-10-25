@@ -27,6 +27,7 @@
     class Exception;
 
     class VirtualGpio;
+    class Serial;
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
