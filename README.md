@@ -34,7 +34,7 @@ To build and run will be need a configuration file like:
     }
 }
 ```
-> **To more details, see [JSON configuration structure](#jsonconfigurationstructure)**
+> **To more details, see [JSON configuration structure](#json-configuration-structure)**
 
 ### Running the example
 With the JSON configuration saved as `config.json`, to run just type:
@@ -67,7 +67,7 @@ Example::onStop
 
 The JSON framework used to configure an Elrond application on Linux must have a root object and within it must have at least three objects with the follow keys:
 
- - `modules`: Object where the modules instances are defined. All instances must be declared here on pattern `"name": "module_path"`. The modules can be **internal** with prefix `elrond::`, or **external** with a path to a shared object file. To more informations about Elrond Modules see [Elrond Modules](#elrondmodules);
+ - `modules`: Object where the modules instances are defined. All instances must be declared here on pattern `"name": "module_path"`. The modules can be **internal** with prefix `elrond::`, or **external** with a path to a shared object file. To more informations about Elrond Modules see [Elrond Modules](#elrond-modules);
  - `init`: Object that associate an module instance with a **configuration object**. The pattern must be `"name":{"key1": 1234, "key2": "value"}`. Each module have your own set of configuration params, see documentation of each one;
  - `options`: Object that define extra options of the application, like the **channel managers**. In this object, can be the following params:
     * `chmgrs`: An array of objects that defines the channel managers. The parameters are:
