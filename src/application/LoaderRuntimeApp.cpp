@@ -14,6 +14,7 @@ using elrond::modules::Example;
 using elrond::modules::Loopback;
 using elrond::modules::InputToChannel;
 using elrond::modules::DigitalLed;
+using elrond::modules::AnalogLed;
 using elrond::modules::Servo;
 
 LoaderRuntimeApp::LoaderRuntimeApp() : BaseRuntimeApp(){}
@@ -80,6 +81,12 @@ void LoaderRuntimeApp::initInternalFactories(Vector<ModuleFactoryP> &factories){
     factories.push_back(
         std::make_shared<InternalModuleFactory<DigitalLed>>(
             DigitalLed::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<AnalogLed>>(
+            AnalogLed::_getInternalName()
         )
     );
 
