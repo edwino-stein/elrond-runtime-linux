@@ -6,9 +6,10 @@ using elrond::modules::BaseTransportModule;
 using elrond::channel::BaseChannelManager;
 using elrond::channel::RxChannel;
 
-ChannelManager::ChannelManager(BaseTransportModule &transport, const elrond::sizeT totalTx, const elrond::sizeT totalRx, const unsigned long timout):
-BaseChannelManager(transport), totalTx(totalTx), totalRx(totalRx),
-rxChannels(new RxChCollectionP[totalRx]), txBuffer(new elrond::byte[ELROND_PROTOCOL_CALC_BUFFER(totalTx)]), timout(timout){
+ChannelManager::ChannelManager(BaseTransportModule &transport, const elrond::sizeT totalTx, const elrond::sizeT totalRx, const unsigned int txFps):
+BaseChannelManager(transport), totalTx(totalTx), totalRx(totalRx), rxChannels(new RxChCollectionP[totalRx]),
+txBuffer(new elrond::byte[ELROND_PROTOCOL_CALC_BUFFER(totalTx)]), txFps(txFps)
+{
     for(elrond::sizeT i = 0; i < totalRx; ++i) this->rxChannels[i] = nullptr;
 }
 
@@ -38,18 +39,14 @@ elrond::sizeT ChannelManager::getTotalRx() const {
     return this->totalRx;
 }
 
-void ChannelManager::onSend(){
-    this->hasUpdate = true;
+void ChannelManager::txTrigger(const elrond::sizeT ch, elrond::word data){
+    MtxLockGuard mlg(this->txBufferMtx);
+    BaseChannelManager::txTrigger(ch, data);
 }
 
-void ChannelManager::sync(){
-
-    if(!this->hasUpdate && this->tries++ <= 10) return;
-
-    this->transport.send(this->getTxBuffer(), this->getTxBufferSize());
-
-    this->hasUpdate = false;
-    this->tries = 0;
+bool ChannelManager::txSync(const bool force){
+    MtxLockGuard mlg(this->txBufferMtx);
+    return BaseChannelManager::txSync(force);
 }
 
 void ChannelManager::run(){
@@ -62,15 +59,19 @@ void ChannelManager::stop(bool join){
     if(!this->running) return;
 
     this->running = false;
-    elrond::delay(this->timout);
+    if(this->txFps > 0) elrond::delay(1000/this->txFps);
 
     if(join && this->thread.joinable()) this->thread.join();
     else this->thread.detach();
 }
 
 void ChannelManager::entryPoint(ChannelManager *cm){
+
+    const unsigned long delay = cm->txFps > 0 ? 1000/cm->txFps : 0;
+    unsigned long lastSync = elrond::millis();
+
     while(cm->running){
-        cm->sync();
-        if(cm->timout > 0) elrond::delay(cm->timout);
+        if(cm->txSync(elrond::millis() - lastSync >= 1000)) lastSync = elrond::millis();
+        if(delay > 0) elrond::delay(delay);
     }
 }

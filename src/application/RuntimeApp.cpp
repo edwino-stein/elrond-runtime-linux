@@ -109,6 +109,7 @@ void RuntimeApp::parseChmgrs(Json &cfg){
     if(cfg.is_array()){
 
         std::cout << " * Initializing channel managers (" << cfg.size() << ")..." << std::endl;
+        elrond::sizeT i = 1;
 
         for(auto& el : cfg.items()){
 
@@ -128,15 +129,22 @@ void RuntimeApp::parseChmgrs(Json &cfg){
                 continue;
             }
 
-            unsigned int timout = 0;
-            if(chmCfg["timeout"].is_number_integer()) timout = chmCfg["timeout"].get<int>();
+            unsigned int fps = 0;
+            if(chmCfg["tx-fps"].is_number_integer()) fps = chmCfg["tx-fps"].get<int>();
 
             ChannelManagerP chmgr = std::make_shared<ChannelManager>(
                 (elrond::modules::BaseTransportModule &) *(mod->module),
                 (elrond::sizeT) chmCfg["tx"].get<int>(),
                 (elrond::sizeT) chmCfg["rx"].get<int>(),
-                timout
+                fps
             );
+
+            std::cout << "  #" << i << ": Using instance \"" << mod->name << "\"..." << std::endl;
+            std::cout << "      TX Channels: " << chmCfg["tx"].get<int>();
+            std::cout << " [" << chmgr->getTxBufferSize() << " Bytes";
+            std::cout << (fps == 0 ? "" : "; " + std::to_string(fps) + " fps");
+            std::cout << (fps == 0 ? "]" : "; " + std::to_string(chmgr->getTxBufferSize() * fps) + " Bps]") << std::endl;
+            std::cout << "      RX Channels: " << chmCfg["rx"].get<int>() << " [" << chmgr->getRxBufferSize() << " Bytes]" << std::endl;
 
             chmgr->init();
             this->chmgrs.push_back(chmgr);

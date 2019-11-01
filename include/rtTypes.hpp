@@ -9,6 +9,7 @@
     #include <functional>
     #include <algorithm>
     #include <thread>
+    #include <mutex>
 
     #include "config/json.hpp"
 
@@ -34,6 +35,8 @@
     template <class T> using Vector = std::vector<T>;
     using Json = nlohmann::json;
     using Thread = std::thread;
+    using Mutex = std::mutex;
+    using MtxLockGuard = std::lock_guard<std::mutex>;
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
     using RxChCollectionP = std::unique_ptr<RxChCollection>;
