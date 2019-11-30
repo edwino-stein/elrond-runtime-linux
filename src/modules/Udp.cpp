@@ -1,6 +1,7 @@
 #include "modules/Udp.hpp"
 #include "exceptions/Exception.hpp"
 
+#include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
 

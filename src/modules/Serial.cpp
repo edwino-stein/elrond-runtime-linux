@@ -1,5 +1,6 @@
 #include "modules/Serial.hpp"
 
+#include <cstring>
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>

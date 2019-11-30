@@ -11,8 +11,6 @@
     #include <thread>
     #include <mutex>
 
-    #include "config/json.hpp"
-
     class CustomConfigMapAllocator;
     class DynamicConfigMemory;
     class RuntimeApp;
@@ -31,7 +29,6 @@
 
     using String = std::string;
     template <class T> using Vector = std::vector<T>;
-    using Json = nlohmann::json;
     using Thread = std::thread;
     using Mutex = std::mutex;
     using MtxLockGuard = std::lock_guard<std::mutex>;
