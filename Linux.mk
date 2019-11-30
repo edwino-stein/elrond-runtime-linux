@@ -32,6 +32,9 @@ INCLUDES += $(COMMON_DIR)/include
 OBJS_FILES = $(subst $(SRC_DIR)/,$(BUILD_DIR)/,$(SRC_FILES))
 OBJS := $(addsuffix $(OBJ_EXTENSION), $(OBJS_FILES))
 
+OBJS_STANDALONE_FILES = $(subst $(SRC_DIR)/,$(BUILD_DIR)/,$(SRC_STANDALONE_FILES))
+OBJS_STANDALONE := $(addsuffix $(OBJ_EXTENSION), $(OBJS_STANDALONE_FILES))
+
 # Define dependencies files
 DEPS = $(OBJS:$(OBJ_EXTENSION)=$(DEPENDENCE_EXTENSION))
 
@@ -42,18 +45,19 @@ CXXFLAGS += $(addprefix -D, $(MACROS))
 # Set Dynamic library to linkage
 LDLIBS += $(addprefix -l, $(DYNAMIC_LIBRARIES))
 
-.PHONY: $(PROJECT_NAME) clean-build clean-common clean-build-all
+.PHONY: $(PROJECT_NAME) lib$(PROJECT_NAME).a clean-build clean-common clean-build-all
 
 # ************************** BUILD RULES **************************
 
 # Runtime object builder
 $(PROJECT_NAME): $(BUILD_DIR)/$(PROJECT_NAME)
-$(BUILD_DIR)/$(PROJECT_NAME): $(BUILD_DIR)/$(PROJECT_NAME).a $(COMMON_DIR)/$(COMMON_NONPIC_LIB)
+$(BUILD_DIR)/$(PROJECT_NAME): $(OBJS_STANDALONE) $(BUILD_DIR)/lib$(PROJECT_NAME).a $(COMMON_DIR)/$(COMMON_NONPIC_LIB)
 	@mkdir -p $(@D)
 	$(CXX) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 # Static library builder
-$(BUILD_DIR)/$(PROJECT_NAME).a: $(OBJS)
+lib$(PROJECT_NAME).a: $(BUILD_DIR)/lib$(PROJECT_NAME).a
+$(BUILD_DIR)/lib$(PROJECT_NAME).a: $(OBJS)
 	@mkdir -p $(@D)
 	@$(AR) $(ARFLAGS) $@ $?
 
