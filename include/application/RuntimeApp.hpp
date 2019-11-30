@@ -2,30 +2,42 @@
     #define _ELROND_RUNTIME_APP_HPP
 
     #include "rtTypes.hpp"
-    #include "application/LoaderRuntimeApp.hpp"
 
-    class RuntimeApp : public LoaderRuntimeApp {
+    class RuntimeApp : public elrond::interfaces::RuntimeInterface {
 
         protected:
-            ModuleInfo info;
-            bool loop = true;
+
+            DebugOut &_dout;
+            Vector<ModuleHandleP> modules;
             Vector<ChannelManagerP> chmgrs;
+            bool _loop;
 
-            static void readJsonFromFile(String file, Json &json);
+            ModuleHandleP findModule(String name) const;
+            void startModules();
+            void stopModules();
 
-            void parseOptions(Json &cfg);
-            void parseChmgrs(Json &cfg);
+            static ModuleFactoryP findFactory(String name, ModulesFactories& factories, elrond::interfaces::RuntimeInterface* app);
 
         public:
 
-            RuntimeApp();
+            RuntimeApp(DebugOut& dout);
             virtual ~RuntimeApp();
 
-            void init(int argc, char const *argv[]);
-            void run();
+            ModuleInfo const& defineModule(String name, String type, ModulesFactories& factories);
+            void initModule(String name, elrond::config::ConfigMap &cm) const;
+            ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
+
+            void start();
+            void loop();
             void stop(bool force = false);
 
-            elrond::channel::BaseChannelManager &getChannelManager(const elrond::sizeT id) const override;
+            elrond::modules::BaseGpioModule &getGpioService() const override;
+            elrond::modules::BaseInputDriverModule &getInputService(const elrond::sizeT id) const override;
+            elrond::channel::BaseChannelManager& getChannelManager(const elrond::sizeT id) const override;
+            const elrond::interfaces::DebugOutInterface &dout() const override;
+            void onError(const char *error) override;
+
+            static ModulesFactories newModulesFactories();
     };
 
 #endif

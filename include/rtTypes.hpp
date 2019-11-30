@@ -37,11 +37,13 @@
     using Thread = std::thread;
     using Mutex = std::mutex;
     using MtxLockGuard = std::lock_guard<std::mutex>;
-    using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
     using RxChCollectionP = std::unique_ptr<RxChCollection>;
     using ChannelManagerP = std::shared_ptr<ChannelManager>;
     using signalCallbackT = std::function<void()>;
+
+    using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
+    using ModulesFactories = Vector<ModuleFactoryP>;
     using modCreateT = elrond::interfaces::ModuleInterface* (*)();
     using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
     using modSetAppT = void (*)(elrond::interfaces::RuntimeInterface *);

@@ -11,14 +11,14 @@
 
         public:
 
-            String const &name;
-            ModuleInfo const &info;
+            String const& name;
+            ModuleInfo const& info;
 
             ModuleFactory(String name);
             virtual ~ModuleFactory();
 
-            virtual elrond::interfaces::ModuleInterface *getInstance()=0;
-            virtual void deleteInstance(elrond::interfaces::ModuleInterface *mod)=0;
+            virtual elrond::interfaces::ModuleInterface* getInstance()=0;
+            virtual void deleteInstance(elrond::interfaces::ModuleInterface* mod)=0;
     };
 
 

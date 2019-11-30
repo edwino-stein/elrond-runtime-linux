@@ -1,26 +1,115 @@
 #include "application/RuntimeApp.hpp"
 
-#include <fstream>
-
 #include "exceptions/Exception.hpp"
 #include "modules/ModuleHandle.hpp"
 #include "channel/ChannelManager.hpp"
+#include "modules/InternalModuleFactory.hpp"
+#include "modules/DlModuleFactory.hpp"
+#include "modules/ModuleHandle.hpp"
 
+#include "modules/VirtualGpio.hpp"
+#include "modules/Serial.hpp"
+#include "modules/Udp.hpp"
+
+using elrond::interfaces::RuntimeInterface;
+using elrond::interfaces::ModuleInterface;
+using elrond::interfaces::DebugOutInterface;
+using elrond::modules::BaseGpioModule;
+using elrond::modules::BaseInputDriverModule;
+using elrond::config::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
-RuntimeApp::RuntimeApp() : LoaderRuntimeApp(){
-    this->info.mainClass = "RuntimeApp";
-    this->info.apiVer = ELROND_API_VERSION;
-    this->info.apiRevision = ELROND_API_REVISION;
-    this->info.prettyName = "Elrond Runtime for Linux";
-    this->info.authorName = "Edwino Stein";
-    this->info.authorEmail = "edwino.stein@gmail.com";
-    this->info.version = std::to_string(ELROND_API_VERSION) + "." + std::to_string(ELROND_API_REVISION) + "-alpha";
+elrond::interfaces::RuntimeInterface* elrond::__rtInstance__ = nullptr;
+
+RuntimeApp::RuntimeApp(DebugOut& dout): _dout(dout), _loop(false)
+{
+    elrond::__rtInstance__ = this;
 }
 
 RuntimeApp::~RuntimeApp(){}
 
-void RuntimeApp::run(){
+ModuleInfo const& RuntimeApp::defineModule(String name, String type, ModulesFactories& factories)
+{
+    ModuleFactoryP fac = RuntimeApp::findFactory(type, factories, this);
+    this->modules.push_back(std::make_shared<ModuleHandle>(name, fac));
+    return fac->info;
+}
+
+void RuntimeApp::initModule(String name, elrond::config::ConfigMap &cm) const {
+    try{
+        ModuleHandleP mh = this->findModule(name);
+        mh->module->onInit(cm);
+    }
+    catch(Exception &e){
+        throw Exception(
+            "An error occurred when initializing the instance \"" + name +"\"",
+            e
+        );
+    }
+}
+
+void RuntimeApp::startModules(){
+
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){
+
+            try{
+                mh->module->onStart();
+            }
+            catch(Exception &e){
+                throw Exception(
+                    "An error occurred when starting the instance \"" + mh->name +"\"",
+                    e
+                );
+            }
+
+            mh->started = true;
+        }
+    );
+}
+
+void RuntimeApp::stopModules(){
+
+    std::for_each(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){
+            try{
+                if(mh->started){
+                    mh->started = false;
+                    mh->module->onStop();
+                }
+            }
+            catch(Exception &e){
+
+                Exception exp(
+                    "An error occurred when stopping the instance \"" + mh->name +"\"",
+                    e
+                );
+
+                std::cout << " * An error occurred" << std::endl;
+                std::cout << exp.what() << '\n';
+            }
+        }
+    );
+}
+
+ModuleHandleP RuntimeApp::findModule(String name) const {
+
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [&name](ModuleHandleP mh){ return mh->name == name; }
+    );
+
+    if(it != this->modules.end()) return *it;
+    throw Exception("No such module instance");
+}
+
+void RuntimeApp::start()
+{
 
     std::for_each(
         this->chmgrs.begin(),
@@ -29,8 +118,11 @@ void RuntimeApp::run(){
     );
 
     this->startModules();
+    this->_loop = true;
+}
 
-    std::cout << " * Application running (CTRL+C to stop)..." << '\n';
+void RuntimeApp::loop()
+{
 
     Vector<ModuleHandleP> syncLoopMods;
 
@@ -51,7 +143,7 @@ void RuntimeApp::run(){
         }
     );
 
-    while(this->loop){
+    while(this->_loop){
         std::for_each(
             syncLoopMods.begin(),
             syncLoopMods.end(),
@@ -62,11 +154,11 @@ void RuntimeApp::run(){
 
 void RuntimeApp::stop(bool force){
 
-    if(force) this->loop = true;
-    if(!this->loop) return;
+    if(force) this->_loop = true;
+    if(!this->_loop) return;
 
     this->stopModules();
-    this->loop = false;
+    this->_loop = false;
 
     std::for_each(
         this->chmgrs.begin(),
@@ -81,81 +173,72 @@ void RuntimeApp::stop(bool force){
     );
 }
 
-void RuntimeApp::init(int argc, char const *argv[]){
+ChannelManagerP RuntimeApp::defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps)
+{
 
-    std::cout << " * Starting " << this->info.about() << "..." << std::endl;
+    ModuleHandleP mod = this->findModule(transport);
+    if(mod->module->getType() != elrond::ModuleType::TRANSPORT)
+        throw Exception("Instance is not a transport module");
 
-    if(argc <= 1) throw Exception("Missing JSON config file");
+    ChannelManagerP chmgr = std::make_shared<ChannelManager>(
+        (elrond::modules::BaseTransportModule &) *(mod->module),
+        tx,
+        rx,
+        fps
+    );
 
-    Json cfg;
-    RuntimeApp::readJsonFromFile(argv[1], cfg);
+    chmgr->init();
+    this->chmgrs.push_back(chmgr);
 
-    if(!cfg["modules"].is_object()) throw Exception("JSON error", Exception("Missing \"modules\" JSON object"));
-    if(!cfg["init"].is_object()) throw Exception("JSON error", Exception("Missing \"init\" JSON object"));
-
-    this->parseModules(cfg["modules"]);
-    this->parseOptions(cfg["options"]);
-    this->initModules(cfg["init"]);
+    return chmgr;
 }
 
-void RuntimeApp::parseOptions(Json &cfg){
-    if(cfg.is_object()){
-        this->parseChmgrs(cfg["chmgrs"]);
-    }
+BaseGpioModule& RuntimeApp::getGpioService() const {
+
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [](ModuleHandleP mh){ return mh->module->getType() == elrond::ModuleType::GPIO; }
+    );
+
+    if(it != this->modules.end()) return *((BaseGpioModule*) (*it)->module);
+
+    throw Exception(
+        "Invalid gpio service",
+        Exception("No gpio service defined")
+    );
 }
 
-void RuntimeApp::parseChmgrs(Json &cfg){
+BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const {
 
-    if(cfg.is_array()){
-
-        std::cout << " * Initializing channel managers (" << cfg.size() << ")..." << std::endl;
-        elrond::sizeT i = 1;
-
-        for(auto& el : cfg.items()){
-
-            if(!el.value().is_object()) continue;
-            Json &chmCfg = el.value();
-
-            ModuleHandleP mod = this->findModule(chmCfg["transport"]);
-            if(mod == nullptr){
-                std::cout << "  WARNING: The \"" << String(chmCfg["transport"]) << "\" instance not found.";
-                std::cout << "  Ignoring this channel manager!" << std::endl;
-                continue;
-            }
-
-            if(mod->module->getType() != elrond::ModuleType::TRANSPORT){
-                std::cout << "  WARNING: The \"" << String(chmCfg["transport"]) << "\" instance is not a transport module!.";
-                std::cout << "  Ignoring this channel manager!" << std::endl;
-                continue;
-            }
-
-            unsigned int fps = 0;
-            if(chmCfg["tx-fps"].is_number_integer()) fps = chmCfg["tx-fps"].get<int>();
-
-            ChannelManagerP chmgr = std::make_shared<ChannelManager>(
-                (elrond::modules::BaseTransportModule &) *(mod->module),
-                (elrond::sizeT) chmCfg["tx"].get<int>(),
-                (elrond::sizeT) chmCfg["rx"].get<int>(),
-                fps
-            );
-
-            std::cout << "  #" << i << ": Using instance \"" << mod->name << "\"..." << std::endl;
-            std::cout << "      TX Channels: " << chmCfg["tx"].get<int>();
-            std::cout << " [" << chmgr->getTxBufferSize() << " Bytes";
-            std::cout << (fps == 0 ? "" : "; " + std::to_string(fps) + " fps");
-            std::cout << (fps == 0 ? "]" : "; " + std::to_string(chmgr->getTxBufferSize() * fps) + " Bps]") << std::endl;
-            std::cout << "      RX Channels: " << chmCfg["rx"].get<int>() << " [" << chmgr->getRxBufferSize() << " Bytes]" << std::endl;
-
-            chmgr->init();
-            this->chmgrs.push_back(chmgr);
+    elrond::sizeT i = 0;
+    auto it = std::find_if(
+        this->modules.begin(),
+        this->modules.end(),
+        [&id, &i](ModuleHandleP mod){
+            if(mod->module->getType() != elrond::ModuleType::INPUT) return false;
+            return (i++) == id;
         }
-    }
-    else std::cout << "  WARNING: Missing \"chmgrs\" key in JSON file!" << std::endl;
+    );
 
-    if(this->chmgrs.size() <= 0) std::cout << "  WARNING: No channel managers defined!" << std::endl;
+    if(it != this->modules.end()) return (BaseInputDriverModule&) *((*it)->module);
+
+    throw Exception(
+        "Invalid input service",
+        Exception("The input service with index " + std::to_string(id) + " not found")
+    );
 }
 
-BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const {
+const DebugOutInterface& RuntimeApp::dout() const {
+    return (DebugOutInterface&) this->_dout;
+}
+
+void RuntimeApp::onError(const char* error){
+    throw Exception(error, 2);
+}
+
+BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const
+{
 
     if(id >= this->chmgrs.size()){
         throw Exception(
@@ -167,21 +250,82 @@ BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const 
     return *this->chmgrs[id];
 }
 
-void RuntimeApp::readJsonFromFile(String file, Json &json){
 
-    try{
+ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactories &factories, RuntimeInterface *app)
+{
 
-        std::ifstream ifs(file);
-        if(!ifs.good()) throw Exception("\"" + file + "\": No such file or directory");
+    auto it = std::find_if(
+        factories.begin(),
+        factories.end(),
+        [&name](ModuleFactoryP f){ return f->name == name; }
+    );
 
-        try{
-            ifs >> json;
-        }
-        catch(std::exception &e){
-            throw Exception(e);
-        }
-    }
-    catch(Exception &e){
-        throw Exception("Unable to read config file", e);
-    }
+    if(it != factories.end()) return *it;
+
+    ModuleFactoryP f = std::make_shared<DlModuleFactory>(name, app);
+    factories.push_back(f);
+
+    return f;
+}
+
+ModulesFactories RuntimeApp::newModulesFactories()
+{
+
+    ModulesFactories factories;
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::Example>>(
+            elrond::Example::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::Loopback>>(
+            elrond::Loopback::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::InputToChannel>>(
+            elrond::InputToChannel::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::DigitalLed>>(
+            elrond::DigitalLed::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::AnalogLed>>(
+            elrond::AnalogLed::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<elrond::Servo>>(
+            elrond::Servo::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<VirtualGpio>>(
+            VirtualGpio::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Serial>>(
+            Serial::_getInternalName()
+        )
+    );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Udp>>(
+            Udp::_getInternalName()
+        )
+    );
+
+    return std::move(factories);
 }
