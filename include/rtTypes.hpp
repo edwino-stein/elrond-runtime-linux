@@ -50,14 +50,14 @@
 
     struct ModuleInfo {
 
-        String mainClass = "";
-        int apiVer = 0;
-        int apiRevision = 0;
+        String mainClass;
+        int apiVer;
+        int apiRevision;
 
-        String prettyName = "";
-        String authorName = "";
-        String authorEmail = "";
-        String version = "";
+        String prettyName;
+        String authorName;
+        String authorEmail;
+        String version;
 
         String about() const;
         String name() const;
