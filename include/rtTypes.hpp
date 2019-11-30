@@ -15,8 +15,6 @@
 
     class CustomConfigMapAllocator;
     class DynamicConfigMemory;
-    class BaseRuntimeApp;
-    class LoaderRuntimeApp;
     class RuntimeApp;
     class DebugOut;
     class ModuleFactory;
