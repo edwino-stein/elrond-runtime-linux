@@ -7,7 +7,7 @@
 
         protected:
 
-            DebugOut &_dout;
+            elrond::interfaces::DebugOutInterface &_dout;
             Vector<ModuleHandleP> modules;
             Vector<ChannelManagerP> chmgrs;
             bool _loop;
@@ -20,7 +20,7 @@
 
         public:
 
-            RuntimeApp(DebugOut& dout);
+            RuntimeApp(elrond::interfaces::DebugOutInterface& dout);
             virtual ~RuntimeApp();
 
             ModuleInfo const& defineModule(String name, String type, ModulesFactories& factories);

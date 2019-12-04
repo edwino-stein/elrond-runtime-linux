@@ -1,14 +1,14 @@
 #include <fstream>
 
 #include "standalone/standalone.hpp"
-#include "util/DebugOut.hpp"
+#include "standalone/OStremDebugOut.hpp"
 #include "util/Signal.hpp"
 
 using elrond::config::ConfigMapAllocator;
 
 int main(int argc, char const* argv[]){
 
-    DebugOut dout;
+    OStremDebugOut dout(std::cout);
     RuntimeApp app(dout);
 
     Signal::attach(SIG::INT, [&app](){

@@ -1,13 +1,16 @@
-#if !defined  _ELROND_RUNTIME_DEBUG_OUT_HPP
-    #define _ELROND_RUNTIME_DEBUG_OUT_HPP
+#if !defined  _ELROND_RUNTIME_STANDALONE_DEBUG_OUT_HPP
+    #define _ELROND_RUNTIME_STANDALONE_DEBUG_OUT_HPP
 
     #include "elrond.hpp"
 
-    class DebugOut : public elrond::interfaces::DebugOutInterface {
+    class OStremDebugOut : public elrond::interfaces::DebugOutInterface {
+        protected:
+            std::ostream& os;
 
         public:
 
-            virtual ~DebugOut();
+            OStremDebugOut(std::ostream& os);
+            virtual ~OStremDebugOut();
 
             const elrond::interfaces::DebugOutInterface& put(const char c[]) const  override;
             const elrond::interfaces::DebugOutInterface& put(char c) const  override;

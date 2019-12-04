@@ -14,7 +14,6 @@
     class CustomConfigMapAllocator;
     class DynamicConfigMemory;
     class RuntimeApp;
-    class DebugOut;
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;

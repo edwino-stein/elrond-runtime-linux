@@ -21,7 +21,7 @@ using elrond::channel::BaseChannelManager;
 
 elrond::interfaces::RuntimeInterface* elrond::__rtInstance__ = nullptr;
 
-RuntimeApp::RuntimeApp(DebugOut& dout): _dout(dout), _loop(false)
+RuntimeApp::RuntimeApp(DebugOutInterface& dout): _dout(dout), _loop(false)
 {
     elrond::__rtInstance__ = this;
 }

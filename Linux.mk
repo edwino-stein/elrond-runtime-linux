@@ -37,6 +37,7 @@ OBJS_STANDALONE := $(addsuffix $(OBJ_EXTENSION), $(OBJS_STANDALONE_FILES))
 
 # Define dependencies files
 DEPS = $(OBJS:$(OBJ_EXTENSION)=$(DEPENDENCE_EXTENSION))
+DEPS += $(OBJS_STANDALONE:$(OBJ_EXTENSION)=$(DEPENDENCE_EXTENSION))
 
 # Add includes and macros to compiler options
 CXXFLAGS += $(addprefix -I, $(INCLUDES))
