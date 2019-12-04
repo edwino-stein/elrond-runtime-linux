@@ -1,10 +1,9 @@
-#if !defined  _ELROND_SIGNAL_HPP
-    #define _ELROND_SIGNAL_HPP
+#if !defined  _ELROND_SIGNAL_STANDALONE_HPP
+    #define _ELROND_SIGNAL_STANDALONE_HPP
 
-    #include "rtTypes.hpp"
-    #include <csignal>
+    #include <functional>
     #include <map>
-
+    #include <csignal>
 
     enum class SIG : int {
         ABRT = SIGABRT,
@@ -16,20 +15,22 @@
     };
 
     class Signal {
+
         private:
             Signal();
 
-        protected:
-
-            static std::map<enum SIG, signalCallbackT> callbacks;
-            static void entryPoint(int signum);
-
         public:
 
-            static void attach(enum SIG sig, signalCallbackT task);
+            using signalCallbackT = std::function<void()>;
+
+            static void attach(enum SIG sig, Signal::signalCallbackT task);
             static void detach(enum SIG sig);
             static void trigger(enum SIG sig);
             static bool hasAttached(enum SIG sig);
+
+        protected:
+            static std::map<enum SIG, Signal::signalCallbackT> callbacks;
+            static void entryPoint(int signum);
 
     };
 

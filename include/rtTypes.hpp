@@ -34,7 +34,6 @@
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
     using RxChCollectionP = std::unique_ptr<RxChCollection>;
     using ChannelManagerP = std::shared_ptr<ChannelManager>;
-    using signalCallbackT = std::function<void()>;
 
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModulesFactories = Vector<ModuleFactoryP>;

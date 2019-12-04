@@ -2,7 +2,7 @@
 
 #include "standalone/standalone.hpp"
 #include "standalone/OStremDebugOut.hpp"
-#include "util/Signal.hpp"
+#include "standalone/Signal.hpp"
 
 using elrond::config::ConfigMapAllocator;
 
