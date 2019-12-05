@@ -9,6 +9,7 @@ using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
 using elrond::runtime::CustomConfigMapAllocator;
+using elrond::runtime::DynamicConfigMemory;
 using elrond::config::ConfigMapAllocator;
 
 int main(int argc, char const* argv[]){

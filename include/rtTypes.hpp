@@ -22,10 +22,11 @@
             using RxChCollectionP = std::unique_ptr<RxChCollection>;
 
             class CustomConfigMapAllocator;
+            class DynamicConfigMemory;
+
         }
     }
 
-    class DynamicConfigMemory;
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;

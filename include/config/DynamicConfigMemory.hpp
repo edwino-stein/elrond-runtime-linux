@@ -1,25 +1,30 @@
 #if !defined  _ELROND_RUNTIME_DYNAMIC_CONFIG_MEMORY_HPP
     #define _ELROND_RUNTIME_DYNAMIC_CONFIG_MEMORY_HPP
 
-    #include "elrond.hpp"
+    #include "rtTypes.hpp"
 
-    class DynamicConfigMemory : public elrond::interfaces::ConfigMapMemoryInterface {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
-            elrond::byte *data = nullptr;
-            elrond::sizeT capacity = 128;
-            elrond::sizeT index = 0;
-            elrond::sizeT length = 0;
+            class DynamicConfigMemory : public elrond::interfaces::ConfigMapMemoryInterface {
 
-            bool realloc(const elrond::sizeT capacity);
+                protected:
+                    elrond::byte* data = nullptr;
+                    elrond::sizeT capacity = 128;
+                    elrond::sizeT index = 0;
+                    elrond::sizeT length = 0;
 
-        public:
-            DynamicConfigMemory();
-            virtual ~DynamicConfigMemory();
+                    bool realloc(const elrond::sizeT capacity);
 
-            bool alloc(const elrond::sizeT length) override;
-            bool write(const elrond::byte data) override;
-            bool read(const elrond::sizeT index, elrond::byte &data) const override;
-    };
+                public:
+                    DynamicConfigMemory();
+                    virtual ~DynamicConfigMemory();
+
+                    bool alloc(const elrond::sizeT length) override;
+                    bool write(const elrond::byte data) override;
+                    bool read(const elrond::sizeT index, elrond::byte& data) const override;
+            };
+        }
+    }
 
 #endif
