@@ -19,14 +19,14 @@
                     void startModules();
                     void stopModules();
 
-                    static ModuleFactoryP findFactory(String name, ModulesFactories& factories, elrond::interfaces::RuntimeInterface* app);
+                    static elrond::runtime::ModuleFactoryP findFactory(String name, elrond::runtime::ModulesFactoriesV& factories, elrond::interfaces::RuntimeInterface* app);
 
                 public:
 
                     RuntimeApp(elrond::interfaces::DebugOutInterface& dout);
                     virtual ~RuntimeApp();
 
-                    ModuleInfo const& defineModule(String name, String type, ModulesFactories& factories);
+                    ModuleInfo const& defineModule(String name, String type, ModulesFactoriesV& factories);
                     void initModule(String name, elrond::config::ConfigMap &cm) const;
                     elrond::runtime::ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
 
@@ -40,7 +40,7 @@
                     const elrond::interfaces::DebugOutInterface &dout() const override;
                     void onError(const char *error) override;
 
-                    static ModulesFactories newModulesFactories();
+                    static elrond::runtime::ModulesFactoriesV newModulesFactories();
             };
         }
     }

@@ -7,7 +7,7 @@
 
     using Json = nlohmann::json;
 
-    ModuleInfo saInfo = {
+    elrond::runtime::ModuleInfo saInfo = {
         .mainClass = "RuntimeApp",
         .apiVer = ELROND_API_VERSION,
         .apiRevision = ELROND_API_REVISION,

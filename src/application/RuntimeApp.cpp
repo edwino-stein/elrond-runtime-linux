@@ -16,6 +16,10 @@ using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
 using elrond::runtime::ModuleHandle;
 using elrond::runtime::ModuleHandleP;
+using elrond::runtime::ModuleFactory;
+using elrond::runtime::ModuleFactoryP;
+using elrond::runtime::ModulesFactoriesV;
+using elrond::runtime::ModuleInfo;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
@@ -36,7 +40,7 @@ _loop(false)
 
 RuntimeApp::~RuntimeApp(){}
 
-ModuleInfo const& RuntimeApp::defineModule(String name, String type, ModulesFactories& factories)
+ModuleInfo const& RuntimeApp::defineModule(String name, String type, ModulesFactoriesV& factories)
 {
     ModuleFactoryP fac = RuntimeApp::findFactory(type, factories, this);
     this->modules.push_back(std::make_shared<ModuleHandle>(name, fac));
@@ -263,7 +267,7 @@ BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const
 }
 
 
-ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactories &factories, RuntimeInterface *app)
+ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactoriesV &factories, RuntimeInterface *app)
 {
 
     auto it = std::find_if(
@@ -280,10 +284,10 @@ ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactories &factories,
     return f;
 }
 
-ModulesFactories RuntimeApp::newModulesFactories()
+ModulesFactoriesV RuntimeApp::newModulesFactories()
 {
 
-    ModulesFactories factories;
+    ModulesFactoriesV factories;
 
     factories.push_back(
         std::make_shared<InternalModuleFactory<elrond::Example>>(

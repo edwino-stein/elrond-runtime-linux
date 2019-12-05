@@ -5,6 +5,7 @@
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
+using elrond::runtime::ModuleFactory;
 
 DlModuleFactory::DlModuleFactory(String name, RuntimeInterface *app): ModuleFactory(name){
 

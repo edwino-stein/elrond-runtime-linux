@@ -8,6 +8,7 @@
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
+using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::CustomConfigMapAllocator;
 using elrond::runtime::DynamicConfigMemory;
 using elrond::config::ConfigMapAllocator;
@@ -84,7 +85,7 @@ void stopApplication(RuntimeApp& app, bool force, int code)
 void parseModules(RuntimeApp& app, Json& cfg){
 
     std::cout << " * Creating instance modules (" << cfg.size() << ")..." << std::endl;
-    ModulesFactories factories = RuntimeApp::newModulesFactories();
+    ModulesFactoriesV factories = RuntimeApp::newModulesFactories();
 
     elrond::sizeT i = 1;
     for (auto& el : cfg.items()){

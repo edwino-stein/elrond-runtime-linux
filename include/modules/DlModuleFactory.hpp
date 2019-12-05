@@ -4,7 +4,7 @@
     #include "rtTypes.hpp"
     #include "ModuleFactory.hpp"
 
-    class DlModuleFactory : public ModuleFactory {
+    class DlModuleFactory : public elrond::runtime::ModuleFactory {
 
         protected:
             void* dlHandle = nullptr;

@@ -5,7 +5,7 @@
     #include "ModuleFactory.hpp"
 
     template<class T>
-    class InternalModuleFactory : public ModuleFactory {
+    class InternalModuleFactory : public elrond::runtime::ModuleFactory {
 
         public:
 

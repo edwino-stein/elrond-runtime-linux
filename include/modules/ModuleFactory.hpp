@@ -3,23 +3,28 @@
 
     #include "rtTypes.hpp"
 
-    class ModuleFactory {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
-            String _name;
-            ModuleInfo _info;
+            class ModuleFactory {
 
-        public:
+                protected:
 
-            String const& name;
-            ModuleInfo const& info;
+                    String _name;
+                    elrond::runtime::ModuleInfo _info;
 
-            ModuleFactory(String name);
-            virtual ~ModuleFactory();
+                public:
 
-            virtual elrond::interfaces::ModuleInterface* getInstance()=0;
-            virtual void deleteInstance(elrond::interfaces::ModuleInterface* mod)=0;
-    };
+                    String const& name;
+                    elrond::runtime::ModuleInfo const& info;
 
+                    ModuleFactory(String name);
+                    virtual ~ModuleFactory();
+
+                    virtual elrond::interfaces::ModuleInterface* getInstance()=0;
+                    virtual void deleteInstance(elrond::interfaces::ModuleInterface* mod)=0;
+            };
+        }
+    }
 
 #endif

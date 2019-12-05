@@ -11,6 +11,13 @@
     #include <thread>
     #include <mutex>
 
+    // STD types
+    using String = std::string;
+    template <class T> using Vector = std::vector<T>;
+    using Thread = std::thread;
+    using Mutex = std::mutex;
+    using MtxLockGuard = std::lock_guard<std::mutex>;
+
     namespace elrond {
         namespace runtime {
 
@@ -24,14 +31,30 @@
             class CustomConfigMapAllocator;
             class DynamicConfigMemory;
 
+            class ModuleFactory;
             class ModuleHandle;
 
+            using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
+            using ModulesFactoriesV = Vector<ModuleFactoryP>;
             using ModuleHandleP = std::shared_ptr<ModuleHandle>;
 
+            struct ModuleInfo {
+
+                String mainClass;
+                int apiVer;
+                int apiRevision;
+
+                String prettyName;
+                String authorName;
+                String authorEmail;
+                String version;
+
+                String about() const;
+                String name() const;
+            };
         }
     }
 
-    class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
     class Exception;
@@ -40,34 +63,11 @@
     class Serial;
     class Udp;
 
-    using String = std::string;
-    template <class T> using Vector = std::vector<T>;
-    using Thread = std::thread;
-    using Mutex = std::mutex;
-    using MtxLockGuard = std::lock_guard<std::mutex>;
-    using ModuleHandleP = std::shared_ptr<ModuleHandle>;
-
-    using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
-    using ModulesFactories = Vector<ModuleFactoryP>;
     using modCreateT = elrond::interfaces::ModuleInterface* (*)();
     using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
     using modSetAppT = void (*)(elrond::interfaces::RuntimeInterface *);
     using modStringHandleT = const char * (*)();
     using modIntHandleT = int (*)();
 
-    struct ModuleInfo {
-
-        String mainClass;
-        int apiVer;
-        int apiRevision;
-
-        String prettyName;
-        String authorName;
-        String authorEmail;
-        String version;
-
-        String about() const;
-        String name() const;
-    };
 
 #endif
