@@ -12,6 +12,7 @@ using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::CustomConfigMapAllocator;
 using elrond::runtime::DynamicConfigMemory;
 using elrond::config::ConfigMapAllocator;
+using elrond::runtime::Exception;
 
 int main(int argc, char const* argv[]){
 

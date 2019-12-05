@@ -40,6 +40,8 @@
             using ModulesFactoriesV = Vector<ModuleFactoryP>;
             using ModuleHandleP = std::shared_ptr<ModuleHandle>;
 
+            class Exception;
+
             struct ModuleInfo {
 
                 String mainClass;
@@ -62,8 +64,6 @@
             using dlModIntHandleT = int (*)();
         }
     }
-
-    class Exception;
 
     class VirtualGpio;
     class Serial;

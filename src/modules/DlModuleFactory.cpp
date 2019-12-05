@@ -11,6 +11,7 @@ using elrond::runtime::dlModDestroyT;
 using elrond::runtime::dlModSetAppT;
 using elrond::runtime::dlModStringHandleT;
 using elrond::runtime::dlModIntHandleT;
+using elrond::runtime::Exception;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;

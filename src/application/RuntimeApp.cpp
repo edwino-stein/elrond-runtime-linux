@@ -22,6 +22,7 @@ using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::ModuleInfo;
 using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::DlModuleFactory;
+using elrond::runtime::Exception;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;

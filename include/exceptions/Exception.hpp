@@ -1,32 +1,38 @@
 #if !defined  _ELROND_RT_EXCEPTION_HPP
     #define _ELROND_RT_EXCEPTION_HPP
 
-    #include <exception>
     #include "rtTypes.hpp"
 
-    class Exception {
+    #include <exception>
 
-        protected:
+    namespace elrond {
+        namespace runtime {
 
-            std::unique_ptr<Exception> _prev;
-            String _message;
+            class Exception {
 
-            Exception();
+                protected:
 
-            static void dumpStack(std::ostream &oss, const Exception &e, elrond::sizeT &i, const Exception *&le);
+                    std::unique_ptr<Exception> _prev;
+                    String _message;
 
-        public:
+                    Exception();
 
-            String const &message;
+                    static void dumpStack(std::ostream &oss, const Exception &e, elrond::sizeT &i, const Exception *&le);
 
-            Exception(const Exception &e);
-            Exception(String message, const Exception &prev);
-            Exception(String message);
-            Exception(const std::exception &e);
+                public:
 
-            virtual ~Exception();
-            virtual String what() const;
-            virtual void what(std::ostream &oss) const;
-    };
+                    String const &message;
+
+                    Exception(const Exception &e);
+                    Exception(String message, const Exception &prev);
+                    Exception(String message);
+                    Exception(const std::exception &e);
+
+                    virtual ~Exception();
+                    virtual String what() const;
+                    virtual void what(std::ostream &oss) const;
+            };
+        }
+    }
 
 #endif

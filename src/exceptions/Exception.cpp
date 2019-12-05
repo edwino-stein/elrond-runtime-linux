@@ -1,6 +1,8 @@
 #include "exceptions/Exception.hpp"
 #include <sstream>
 
+using elrond::runtime::Exception;
+
 Exception::Exception():
 _prev(nullptr), _message("Exception"), message(_message){}
 
