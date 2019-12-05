@@ -23,7 +23,7 @@
     void initModules(elrond::runtime::RuntimeApp& app, Json& cfg);
     void parseChmgrs(elrond::runtime::RuntimeApp& app, Json &cfg);
     void readJsonFromFile(String file, Json& json);
-    void jsonToCMA(Json &json, CustomConfigMapAllocator &cma);
+    void jsonToCMA(Json &json, elrond::runtime::CustomConfigMapAllocator &cma);
     int main(int argc, char const* argv[]);
 
 #endif

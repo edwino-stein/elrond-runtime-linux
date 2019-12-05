@@ -21,10 +21,10 @@
             using ChannelManagerP = std::shared_ptr<ChannelManager>;
             using RxChCollectionP = std::unique_ptr<RxChCollection>;
 
+            class CustomConfigMapAllocator;
         }
     }
 
-    class CustomConfigMapAllocator;
     class DynamicConfigMemory;
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
