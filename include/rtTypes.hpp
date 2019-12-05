@@ -65,7 +65,6 @@
         }
     }
 
-    class VirtualGpio;
     class Serial;
     class Udp;
 

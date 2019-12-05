@@ -5,10 +5,13 @@
 #include "standalone/Signal.hpp"
 #include "standalone/Stacktrace.hpp"
 
+#include "standalone/modules/VirtualGpio.hpp"
+
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
 using elrond::runtime::ModulesFactoriesV;
+using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::CustomConfigMapAllocator;
 using elrond::runtime::DynamicConfigMemory;
 using elrond::config::ConfigMapAllocator;
@@ -86,7 +89,9 @@ void stopApplication(RuntimeApp& app, bool force, int code)
 void parseModules(RuntimeApp& app, Json& cfg){
 
     std::cout << " * Creating instance modules (" << cfg.size() << ")..." << std::endl;
+
     ModulesFactoriesV factories = RuntimeApp::newModulesFactories();
+    pushStandaloneModules(factories);
 
     elrond::sizeT i = 1;
     for (auto& el : cfg.items()){
@@ -215,4 +220,14 @@ void jsonToCMA(Json &json, CustomConfigMapAllocator &cma)
             else cma.push(key, str);
         }
     }
+}
+
+void pushStandaloneModules(ModulesFactoriesV& factories)
+{
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<VirtualGpio>>(
+            VirtualGpio::_getInternalName()
+        )
+    );
 }

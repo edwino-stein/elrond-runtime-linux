@@ -15,10 +15,9 @@
 
     #include "modules/ModuleHandle.hpp"
     #include "modules/ModuleFactory.hpp"
+    #include "modules/InternalModuleFactory.hpp"
     #include "modules/DlModuleFactory.hpp"
 
     #include "modules/Serial.hpp"
     #include "modules/Udp.hpp"
-    #include "modules/VirtualGpio.hpp"
-
 #endif

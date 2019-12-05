@@ -19,6 +19,7 @@
 
     void loadApplication(int argc, char const* argv[], elrond::runtime::RuntimeApp& app);
     void stopApplication(elrond::runtime::RuntimeApp& app, bool force, int code);
+    void pushStandaloneModules(elrond::runtime::ModulesFactoriesV& factories);
     void parseModules(elrond::runtime::RuntimeApp& app, Json& cfg);
     void initModules(elrond::runtime::RuntimeApp& app, Json& cfg);
     void parseChmgrs(elrond::runtime::RuntimeApp& app, Json &cfg);

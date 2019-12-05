@@ -7,7 +7,6 @@
 #include "modules/DlModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
 
-#include "modules/VirtualGpio.hpp"
 #include "modules/Serial.hpp"
 #include "modules/Udp.hpp"
 
@@ -325,12 +324,6 @@ ModulesFactoriesV RuntimeApp::newModulesFactories()
     factories.push_back(
         std::make_shared<InternalModuleFactory<elrond::Servo>>(
             elrond::Servo::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<VirtualGpio>>(
-            VirtualGpio::_getInternalName()
         )
     );
 
