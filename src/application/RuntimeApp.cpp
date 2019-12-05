@@ -20,6 +20,7 @@ using elrond::runtime::ModuleFactory;
 using elrond::runtime::ModuleFactoryP;
 using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::ModuleInfo;
+using elrond::runtime::InternalModuleFactory;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;

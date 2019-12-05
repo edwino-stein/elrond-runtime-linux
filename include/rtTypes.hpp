@@ -31,8 +31,9 @@
             class CustomConfigMapAllocator;
             class DynamicConfigMemory;
 
-            class ModuleFactory;
             class ModuleHandle;
+            class ModuleFactory;
+            template<class T> class InternalModuleFactory;
 
             using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
             using ModulesFactoriesV = Vector<ModuleFactoryP>;
@@ -55,7 +56,7 @@
         }
     }
 
-    template<class T> class InternalModuleFactory;
+
     class DlModuleFactory;
     class Exception;
 

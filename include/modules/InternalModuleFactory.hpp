@@ -4,20 +4,27 @@
     #include "rtTypes.hpp"
     #include "ModuleFactory.hpp"
 
+    namespace elrond {
+        namespace runtime {
+
+            template<class T>
+            class InternalModuleFactory : public elrond::runtime::ModuleFactory {
+
+                public:
+
+                    InternalModuleFactory(String name);
+                    virtual ~InternalModuleFactory();
+
+                    elrond::interfaces::ModuleInterface* getInstance() override;
+                    void deleteInstance(elrond::interfaces::ModuleInterface* mod) override;
+            };
+        }
+    }
+
     template<class T>
-    class InternalModuleFactory : public elrond::runtime::ModuleFactory {
-
-        public:
-
-            InternalModuleFactory(String name);
-            virtual ~InternalModuleFactory();
-
-            elrond::interfaces::ModuleInterface *getInstance() override;
-            void deleteInstance(elrond::interfaces::ModuleInterface *mod) override;
-    };
-
-    template<class T>
-    InternalModuleFactory<T>::InternalModuleFactory(String name): ModuleFactory(name){
+    elrond::runtime::InternalModuleFactory<T>::InternalModuleFactory(String name):
+    ModuleFactory(name)
+    {
         this->_info.mainClass = T::_infoMainClassName();
         this->_info.apiVer = T::_infoApiVersion();
         this->_info.apiRevision = T::_infoApiRevision();
@@ -28,15 +35,17 @@
     }
 
     template<class T>
-    InternalModuleFactory<T>::~InternalModuleFactory(){}
+    elrond::runtime::InternalModuleFactory<T>::~InternalModuleFactory(){}
 
     template<class T>
-    elrond::interfaces::ModuleInterface *InternalModuleFactory<T>::getInstance(){
+    elrond::interfaces::ModuleInterface* elrond::runtime::InternalModuleFactory<T>::getInstance()
+    {
         return new T();
     }
 
     template<class T>
-    void InternalModuleFactory<T>::deleteInstance(elrond::interfaces::ModuleInterface *mod){
+    void elrond::runtime::InternalModuleFactory<T>::deleteInstance(elrond::interfaces::ModuleInterface* mod)
+    {
         delete mod;
     }
 
