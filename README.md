@@ -63,12 +63,15 @@ Example::loop (async)
  * Stopping all modules instances...
 Example::onStop
 ```
+
+> To run the runtime with dynamic linkage, you must run `export LD_LIBRARY_PATH="/full/path/to/libelrond/directory"` before the build, or install the `build/runtime-base/libelrond-runtime.so` into a library directory of your distribuition.
+
 ## JSON configuration structure
 
 The JSON framework used to configure an Elrond application on Linux must have a root object and within it must have at least three objects with the follow keys:
 
  - `modules`: Object where the modules instances are defined. All instances must be declared here on pattern `"name": "module_path"`. The modules can be **internal** with prefix `elrond::`, or **external** with a path to a shared object file. To more informations about Elrond Modules see [Elrond Modules](#elrond-modules);
- - `init`: Object that associate an module instance with a **configuration object**. The pattern must be `"name":{"key1": 1234, "key2": "value"}`. Each module have your own set of configuration params, see documentation of each one;
+ - `init`: Object that associate an module instance with a **configuration object**. The pattern must be `"name":{"key1": 1234, "key2": "value"}`. Every module have your own set of configuration params, see documentation of every one;
  - `options`: Object that define extra options of the application, like the **channel managers**. In this object, can be the following params:
     * `chmgrs`: An array of objects that defines the channel managers. The parameters are:
         + `transport` (string): The name of transport module instance that will be used by this channel manager;

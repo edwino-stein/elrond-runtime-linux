@@ -20,6 +20,6 @@ vpath %.c $(SRC_DIR)
 # *********************************** RULES ************************************
 include Linux.mk
 
-all: $(PROJECT_NAME)
+all: $(PROJECT_NAME) $(PROJECT_NAME)-wdl
 clean: clean-build
 clean-all: clean-build-all
