@@ -11,7 +11,7 @@
                 protected:
 
                     elrond::interfaces::DebugOutInterface &_dout;
-                    Vector<ModuleHandleP> modules;
+                    Vector<elrond::runtime::ModuleHandleP> modules;
                     Vector<elrond::runtime::ChannelManagerP> chmgrs;
                     bool _loop;
 

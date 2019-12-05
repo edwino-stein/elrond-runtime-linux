@@ -3,33 +3,38 @@
 
     #include "rtTypes.hpp"
 
-    class ModuleHandle {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
-            String _name;
-            ModuleFactoryP _factory;
-            elrond::interfaces::ModuleInterface *_module = nullptr;
+            class ModuleHandle {
 
-            bool running = false;
-            Thread thread;
-            unsigned long timout = 0;
+                protected:
 
-            static void entryPoint(ModuleHandle * const mh);
+                    String _name;
+                    ModuleFactoryP _factory;
+                    elrond::interfaces::ModuleInterface* _module = nullptr;
 
-        public:
+                    bool running = false;
+                    Thread thread;
+                    unsigned long timout = 0;
 
-            String const &name;
-            elrond::interfaces::ModuleInterface * const &module;
-            ModuleFactoryP const &factory;
-            bool started = false;
+                    static void entryPoint(ModuleHandle* const mh);
 
-            ModuleHandle(String name, ModuleFactoryP factory);
-            virtual ~ModuleHandle();
+                public:
 
-            void asyncRun();
-            void asyncStop(bool join = true);
+                    String const& name;
+                    elrond::interfaces::ModuleInterface* const& module;
+                    ModuleFactoryP const& factory;
+                    bool started = false;
 
-            void syncLoop();
-    };
+                    ModuleHandle(String name, ModuleFactoryP factory);
+                    virtual ~ModuleHandle();
+
+                    void asyncRun();
+                    void asyncStop(const bool join = true);
+                    void syncLoop();
+            };
+        }
+    }
 
 #endif

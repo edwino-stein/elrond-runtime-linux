@@ -14,6 +14,8 @@
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
+using elrond::runtime::ModuleHandle;
+using elrond::runtime::ModuleHandleP;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;

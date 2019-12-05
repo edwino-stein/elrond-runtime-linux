@@ -1,18 +1,23 @@
 #include "modules/ModuleHandle.hpp"
+
 #include "modules/ModuleFactory.hpp"
 
+using elrond::runtime::ModuleHandle;
 using elrond::interfaces::ModuleInterface;
 
 ModuleHandle::ModuleHandle(String name, ModuleFactoryP factory):
-_name(name), _factory(factory), name(_name), module(_module), factory(_factory){
+_name(name), _factory(factory), name(_name), module(_module), factory(_factory)
+{
     this->_module = this->factory->getInstance();
 }
 
-ModuleHandle::~ModuleHandle(){
+ModuleHandle::~ModuleHandle()
+{
     if(this->_module != nullptr) this->factory->deleteInstance(this->_module);
 }
 
-void ModuleHandle::entryPoint(ModuleHandle * const mh){
+void ModuleHandle::entryPoint(ModuleHandle* const mh)
+{
     while (mh->running){
         if(mh->started){
             mh->module->loop();
@@ -21,13 +26,15 @@ void ModuleHandle::entryPoint(ModuleHandle * const mh){
     }
 }
 
-void ModuleHandle::asyncRun(){
+void ModuleHandle::asyncRun()
+{
     if(this->running) return;
     this->running = true;
     this->thread = Thread(ModuleHandle::entryPoint, this);
 }
 
-void ModuleHandle::asyncStop(bool join){
+void ModuleHandle::asyncStop(const bool join)
+{
 
     if(!this->running) return;
 
@@ -38,7 +45,8 @@ void ModuleHandle::asyncStop(bool join){
     else this->thread.detach();
 }
 
-void ModuleHandle::syncLoop(){
+void ModuleHandle::syncLoop()
+{
 
     if(!this->started) return;
 

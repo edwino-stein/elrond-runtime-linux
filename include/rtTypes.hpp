@@ -24,13 +24,16 @@
             class CustomConfigMapAllocator;
             class DynamicConfigMemory;
 
+            class ModuleHandle;
+
+            using ModuleHandleP = std::shared_ptr<ModuleHandle>;
+
         }
     }
 
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
-    class ModuleHandle;
     class Exception;
 
     class VirtualGpio;
