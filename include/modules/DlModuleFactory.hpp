@@ -4,21 +4,26 @@
     #include "rtTypes.hpp"
     #include "ModuleFactory.hpp"
 
-    class DlModuleFactory : public elrond::runtime::ModuleFactory {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
-            void* dlHandle = nullptr;
-            modCreateT _getInstance = nullptr;
-            modDestroyT _deleteInstance = nullptr;
-            modSetAppT _setAppInstance = nullptr;
+            class DlModuleFactory : public elrond::runtime::ModuleFactory {
 
-        public:
+                protected:
 
-            DlModuleFactory(String name, elrond::interfaces::RuntimeInterface *app);
-            virtual ~DlModuleFactory();
+                    void* dlHandle = nullptr;
+                    dlModCreateT _getInstance = nullptr;
+                    dlModDestroyT _deleteInstance = nullptr;
 
-            elrond::interfaces::ModuleInterface *getInstance() override;
-            void deleteInstance(elrond::interfaces::ModuleInterface *mod) override;
-    };
+                public:
+
+                    DlModuleFactory(String name, elrond::interfaces::RuntimeInterface* app);
+                    virtual ~DlModuleFactory();
+
+                    elrond::interfaces::ModuleInterface* getInstance() override;
+                    void deleteInstance(elrond::interfaces::ModuleInterface* mod) override;
+            };
+        }
+    }
 
 #endif

@@ -1,13 +1,25 @@
 #include "modules/DlModuleFactory.hpp"
+
 #include "exceptions/Exception.hpp"
 
 #include <dlfcn.h>
 
+using elrond::runtime::DlModuleFactory;
+using elrond::runtime::ModuleFactory;
+using elrond::runtime::dlModCreateT;
+using elrond::runtime::dlModDestroyT;
+using elrond::runtime::dlModSetAppT;
+using elrond::runtime::dlModStringHandleT;
+using elrond::runtime::dlModIntHandleT;
+
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
-using elrond::runtime::ModuleFactory;
 
-DlModuleFactory::DlModuleFactory(String name, RuntimeInterface *app): ModuleFactory(name){
+DlModuleFactory::DlModuleFactory(String name, RuntimeInterface* app):
+ModuleFactory(name)
+{
+
+    dlModSetAppT setAppInstance = nullptr;
 
     try{
 
@@ -16,17 +28,17 @@ DlModuleFactory::DlModuleFactory(String name, RuntimeInterface *app): ModuleFact
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
 
-        modIntHandleT getApiVersion = (modIntHandleT) dlsym(this->dlHandle, "_infoApiVersion");
+        dlModIntHandleT getApiVersion = (dlModIntHandleT) dlsym(this->dlHandle, "_infoApiVersion");
         if(getApiVersion == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
 
-        modIntHandleT getApiRevision = (modIntHandleT) dlsym(this->dlHandle, "_infoApiRevision");
+        dlModIntHandleT getApiRevision = (dlModIntHandleT) dlsym(this->dlHandle, "_infoApiRevision");
         if(getApiRevision == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
 
-        modStringHandleT getMainClass = (modStringHandleT) dlsym(this->dlHandle, "_infoMainClassName");
+        dlModStringHandleT getMainClass = (dlModStringHandleT) dlsym(this->dlHandle, "_infoMainClassName");
         if(getMainClass == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
@@ -39,18 +51,18 @@ DlModuleFactory::DlModuleFactory(String name, RuntimeInterface *app): ModuleFact
             throw Exception("Incompatible Module");
         }
 
-        this->_getInstance = (modCreateT) dlsym(this->dlHandle, "_getInstance");
+        this->_getInstance = (dlModCreateT) dlsym(this->dlHandle, "_getInstance");
         if(this->_getInstance == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
 
-        this->_deleteInstance = (modDestroyT) dlsym(this->dlHandle, "_deleteInstance");
+        this->_deleteInstance = (dlModDestroyT) dlsym(this->dlHandle, "_deleteInstance");
         if(this->_deleteInstance == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
 
-        this->_setAppInstance = (modSetAppT) dlsym(this->dlHandle, "_setAppInstance");
-        if(this->_setAppInstance == nullptr){
+        setAppInstance = (dlModSetAppT) dlsym(this->dlHandle, "_setAppInstance");
+        if(setAppInstance == nullptr){
             throw Exception("Invalid shared object (.so) file", Exception(dlerror()));
         }
     }
@@ -58,35 +70,37 @@ DlModuleFactory::DlModuleFactory(String name, RuntimeInterface *app): ModuleFact
         throw Exception("Unable to load the module from \"" + name + "\"", e);
     }
 
-    modStringHandleT getPrettyName = (modStringHandleT) dlsym(this->dlHandle, "_infoPrettyName");
+    dlModStringHandleT getPrettyName = (dlModStringHandleT) dlsym(this->dlHandle, "_infoPrettyName");
     if(getPrettyName != nullptr) this->_info.prettyName = getPrettyName();
 
-    modStringHandleT getAuthorName = (modStringHandleT) dlsym(this->dlHandle, "_infoAuthorName");
+    dlModStringHandleT getAuthorName = (dlModStringHandleT) dlsym(this->dlHandle, "_infoAuthorName");
     if(getAuthorName != nullptr) this->_info.authorName = getAuthorName();
 
-    modStringHandleT getAuthorEmail = (modStringHandleT) dlsym(this->dlHandle, "_infoAuthorEmail");
+    dlModStringHandleT getAuthorEmail = (dlModStringHandleT) dlsym(this->dlHandle, "_infoAuthorEmail");
     if(getAuthorEmail != nullptr) this->_info.authorEmail = getAuthorEmail();
 
-    modStringHandleT getVersion = (modStringHandleT) dlsym(this->dlHandle, "_infoVersion");
+    dlModStringHandleT getVersion = (dlModStringHandleT) dlsym(this->dlHandle, "_infoVersion");
     if(getVersion != nullptr) this->_info.version = getVersion();
 
-    this->_setAppInstance(app);
+    setAppInstance(app);
 }
 
-DlModuleFactory::~DlModuleFactory(){
+DlModuleFactory::~DlModuleFactory()
+{
     if(this->dlHandle != nullptr){
         dlclose(this->dlHandle);
         this->dlHandle = nullptr;
         this->_getInstance = nullptr;
         this->_deleteInstance = nullptr;
-        this->_setAppInstance = nullptr;
     }
 }
 
-ModuleInterface *DlModuleFactory::getInstance(){
+ModuleInterface* DlModuleFactory::getInstance()
+{
     return this->_getInstance();
 }
 
-void DlModuleFactory::deleteInstance(ModuleInterface *mod){
+void DlModuleFactory::deleteInstance(ModuleInterface* mod)
+{
     this->_deleteInstance(mod);
 }

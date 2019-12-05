@@ -34,6 +34,7 @@
             class ModuleHandle;
             class ModuleFactory;
             template<class T> class InternalModuleFactory;
+            class DlModuleFactory;
 
             using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
             using ModulesFactoriesV = Vector<ModuleFactoryP>;
@@ -53,22 +54,19 @@
                 String about() const;
                 String name() const;
             };
+
+            using dlModCreateT = elrond::interfaces::ModuleInterface* (*)();
+            using dlModDestroyT = void (*)(elrond::interfaces::ModuleInterface*);
+            using dlModSetAppT = void (*)(elrond::interfaces::RuntimeInterface*);
+            using dlModStringHandleT = const char* (*)();
+            using dlModIntHandleT = int (*)();
         }
     }
 
-
-    class DlModuleFactory;
     class Exception;
 
     class VirtualGpio;
     class Serial;
     class Udp;
-
-    using modCreateT = elrond::interfaces::ModuleInterface* (*)();
-    using modDestroyT = void (*)(elrond::interfaces::ModuleInterface *);
-    using modSetAppT = void (*)(elrond::interfaces::RuntimeInterface *);
-    using modStringHandleT = const char * (*)();
-    using modIntHandleT = int (*)();
-
 
 #endif
