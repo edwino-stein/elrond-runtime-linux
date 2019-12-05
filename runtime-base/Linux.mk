@@ -1,6 +1,7 @@
 # General Linux build settings
 BUILD_DIR = ../build/runtime-base
 OBJ_EXTENSION = .o
+OBJ_PIC_EXTENSION = .pic$(OBJ_EXTENSION)
 DEPENDENCE_EXTENSION = .d
 
 # Compiler and linker settings
@@ -21,6 +22,7 @@ DYNAMIC_LIBRARIES =
 COMMON_DIR = ../elrond
 COMMON_NAME_LIB = libelrond
 COMMON_NONPIC_LIB = build/$(COMMON_NAME_LIB).a
+COMMON_PIC_LIB = build/$(COMMON_NAME_LIB).pic.o
 
 # if has a dev common version in the project, use it
 ifeq ($(shell test -L $(COMMON_DIR)-dev -o -d $(COMMON_DIR)-dev; echo $$?), 0)
@@ -32,8 +34,12 @@ INCLUDES += $(COMMON_DIR)/include
 OBJS_FILES = $(subst $(SRC_DIR)/,$(BUILD_DIR)/,$(SRC_FILES))
 OBJS := $(addsuffix $(OBJ_EXTENSION), $(OBJS_FILES))
 
+# Set PIC objects
+OBJS_PIC := $(addsuffix $(OBJ_PIC_EXTENSION), $(OBJS_FILES))
+
 # Define dependencies files
 DEPS = $(OBJS:$(OBJ_EXTENSION)=$(DEPENDENCE_EXTENSION))
+DEPS += $(OBJS_PIC:$(OBJ_EXTENSION)=$(DEPENDENCE_EXTENSION))
 
 # Add includes and macros to compiler options
 CXXFLAGS += $(addprefix -I, $(INCLUDES))
@@ -58,7 +64,21 @@ $(BUILD_DIR)/%.cpp$(OBJ_EXTENSION): $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $< -o $@
 
+# Shared object library builder
+lib$(PROJECT_NAME).so: $(BUILD_DIR)/lib$(PROJECT_NAME).so
+$(BUILD_DIR)/lib$(PROJECT_NAME).so: $(OBJS_PIC) $(COMMON_DIR)/$(COMMON_PIC_LIB)
+	@mkdir -p $(@D)
+	$(CXX) -shared $(CXXLFLAGS) $^ -o $@ $(LDLIBS)
+
+# PIC objects builder
+$(BUILD_DIR)/%.cpp$(OBJ_PIC_EXTENSION): $(SRC_DIR)/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) -fPIC $(CXXFLAGS) -DPIC $< -o $@
+
 $(COMMON_DIR)/$(COMMON_NONPIC_LIB):
+	@cd $(COMMON_DIR) && $(MAKE) $(notdir $@)
+
+$(COMMON_DIR)/$(COMMON_PIC_LIB):
 	@cd $(COMMON_DIR) && $(MAKE) $(notdir $@)
 
 # Cleaning rules
