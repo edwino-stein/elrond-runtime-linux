@@ -1,31 +1,36 @@
-#include "modules/Udp.hpp"
+#include "standalone/modules/Udp.hpp"
 #include "exceptions/Exception.hpp"
 
 #include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
 
-using namespace elrond::modules;
+using elrond::runtime::Exception;
 using elrond::config::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
-Udp::UdpSocket::UdpSocket() : host(_host), port(_port){}
+Udp::UdpSocket::UdpSocket():
+host(_host), port(_port){}
 
-void Udp::UdpSocket::init(const int port, String host){
+void Udp::UdpSocket::init(const int port, String host)
+{
 
     if(this->isRunnig()) return;
 
     this->_host = host;
     this->_port = port;
 
-    if(!Udp::UdpSocket::isValidPort(this->port)) throw Exception("Invalid port number");
+    if(!Udp::UdpSocket::isValidPort(this->port))
+        throw Exception("Invalid port number.");
 
     if(!this->isServer()){
-        if(!Udp::UdpSocket::isValidIpv4(this->host)) throw Exception("Invalid IP address");
+        if(!Udp::UdpSocket::isValidIpv4(this->host))
+            throw Exception("Invalid IP address.");
     }
 
     // Create server socket
-    if((this->sck = ::socket(AF_INET, SOCK_DGRAM, 0)) == -1) throw Exception(strerror(errno));
+    if((this->sck = ::socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+        throw Exception(strerror(errno));
 
     ::memset((char *) &this->serverAddr, 0, sizeof(this->clientAddr));
     ::memset((char *) &this->clientAddr, 0, sizeof(this->clientAddr));
@@ -37,9 +42,8 @@ void Udp::UdpSocket::init(const int port, String host){
         this->serverAddr.sin_port = htons(this->port);                          // Assign port on which server will listen
 
         // Bind name & address to the socket
-        if((::bind(this->sck, (struct sockaddr *) &this->serverAddr, sizeof(this->serverAddr))) == -1){
+        if((::bind(this->sck, (struct sockaddr *) &this->serverAddr, sizeof(this->serverAddr))) == -1)
             throw Exception(strerror(errno));
-        }
     }
     else{
         this->clientAddr.sin_family = AF_INET;                                  //For IPV4 internet protocol
@@ -54,14 +58,15 @@ void Udp::UdpSocket::init(const int port, String host){
     ::setsockopt(this->sck, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof (tv));
 }
 
-void Udp::UdpSocket::stop(){
+void Udp::UdpSocket::stop()
+{
     if(!this->isRunnig()) return;
     ::close(this->sck);
     this->sck = -1;
 }
 
-bool Udp::UdpSocket::receive(elrond::byte data[], const elrond::sizeT len){
-
+bool Udp::UdpSocket::receive(elrond::byte data[], const elrond::sizeT len)
+{
     if(!this->isRunnig()) return false;
 
     elrond::sizeT clientSize = sizeof(this->clientAddr);
@@ -70,13 +75,13 @@ bool Udp::UdpSocket::receive(elrond::byte data[], const elrond::sizeT len){
         data,
         len,
         0,
-        (struct sockaddr *) &this->clientAddr,
+        (struct sockaddr*) &this->clientAddr,
         (socklen_t*) &clientSize
     ) != -1;
 }
 
-bool Udp::UdpSocket::send(elrond::byte data[], const elrond::sizeT len){
-
+bool Udp::UdpSocket::send(elrond::byte data[], const elrond::sizeT len)
+{
     if(!this->isRunnig()) return false;
 
     const elrond::sizeT clientSize = sizeof(this->clientAddr);
@@ -85,7 +90,7 @@ bool Udp::UdpSocket::send(elrond::byte data[], const elrond::sizeT len){
         data,
         len,
         0,
-        (struct sockaddr *) &this->clientAddr,
+        (struct sockaddr*) &this->clientAddr,
         clientSize
     ) == -1;
 }
@@ -93,35 +98,42 @@ bool Udp::UdpSocket::send(elrond::byte data[], const elrond::sizeT len){
 bool Udp::UdpSocket::isServer() const { return this->host == ""; }
 bool Udp::UdpSocket::isRunnig() const { return this->sck != -1; }
 
-bool Udp::UdpSocket::isValidIpv4(String ip){ return ::inet_addr(ip.c_str()) != (in_addr_t)(-1); }
-bool Udp::UdpSocket::isValidPort(const int port){ return port > 0 && port < 65535; }
+bool Udp::UdpSocket::isValidIpv4(String ip)
+{
+    return ::inet_addr(ip.c_str()) != (in_addr_t)(-1);
+}
+
+bool Udp::UdpSocket::isValidPort(const int port)
+{
+    return port > 0 && port < 65535;
+}
 
 Udp::~Udp(){}
 
-void Udp::onInit(elrond::config::ConfigMap &cfg){
+void Udp::onInit(elrond::config::ConfigMap& cfg)
+{
 
     if(!cfg.isInt("port")) elrond::error("Invalid or missing key \"port\".");
     int port = cfg.asInt("port");
 
     String host = "";
-    if(cfg.isString("host")){
+    if(cfg.isString("host"))
         host = cfg.asString("host");
-    }
 
     try{
         this->socket.init(port, host);
-    } catch(Exception &e){
+    }
+    catch(Exception &e){
         throw Exception("Unable to initialize the UDP socket", e);
     }
-
 
     this->getLoopControl().allow = true;
     this->getLoopControl().async = true;
     this->getLoopControl().time = 10;
 }
 
-void Udp::onStart(){
-
+void Udp::onStart()
+{
     if(this->socket.isServer()){
         elrond::dout().put(" * Waiting for connection (127.0.0.0:")
                       .put(this->socket.port)
@@ -136,13 +148,14 @@ void Udp::onStart(){
     }
 }
 
-void Udp::onStop(){
+void Udp::onStop()
+{
     this->socket.stop();
     elrond::delay(this->getLoopControl().time * 5);
 }
 
-void Udp::loop(){
-
+void Udp::loop()
+{
     if(this->cm == nullptr) return;
 
     const elrond::sizeT length = this->cm->getRxBufferSize();
@@ -153,43 +166,52 @@ void Udp::loop(){
 }
 
 
-void Udp::send(elrond::byte data[], const elrond::sizeT length){
+void Udp::send(elrond::byte data[], const elrond::sizeT length)
+{
     this->socket.send(data, length);
 }
 
-void Udp::setChannelManager(BaseChannelManager *cm){
+void Udp::setChannelManager(BaseChannelManager* cm)
+{
     if(this->cm == nullptr) this->cm = cm;
 }
 
-
-const char *Udp::_getInternalName(){
+const char* Udp::_getInternalName()
+{
     return "elrond::runtime::Udp";
 }
 
-const char *Udp::_infoMainClassName(){
+const char* Udp::_infoMainClassName()
+{
     return "Udp";
 }
 
-int Udp::_infoApiVersion(){
+int Udp::_infoApiVersion()
+{
     return ELROND_API_VERSION;
 }
 
-int Udp::_infoApiRevision(){
+int Udp::_infoApiRevision()
+{
     return ELROND_API_REVISION;
 }
 
-const char *Udp::_infoPrettyName(){
+const char* Udp::_infoPrettyName()
+{
     return "UDP Transport";
 }
 
-const char *Udp::_infoAuthorName(){
+const char* Udp::_infoAuthorName()
+{
     return "Edwino Stein";
 }
 
-const char *Udp::_infoAuthorEmail(){
+const char* Udp::_infoAuthorEmail()
+{
     return "edwino.stein@gmail.com";
 }
 
-const char *Udp::_infoVersion(){
+const char* Udp::_infoVersion()
+{
     return "1.0";
 }

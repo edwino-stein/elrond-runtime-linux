@@ -18,5 +18,4 @@
     #include "modules/InternalModuleFactory.hpp"
     #include "modules/DlModuleFactory.hpp"
 
-    #include "modules/Udp.hpp"
 #endif

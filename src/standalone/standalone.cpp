@@ -7,6 +7,7 @@
 
 #include "standalone/modules/VirtualGpio.hpp"
 #include "standalone/modules/Serial.hpp"
+#include "standalone/modules/Udp.hpp"
 
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
@@ -238,4 +239,9 @@ void pushStandaloneModules(ModulesFactoriesV& factories)
         )
     );
 
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Udp>>(
+            Udp::_getInternalName()
+        )
+    );
 }

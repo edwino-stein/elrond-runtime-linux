@@ -7,8 +7,6 @@
 #include "modules/DlModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
 
-#include "modules/Udp.hpp"
-
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
@@ -323,12 +321,6 @@ ModulesFactoriesV RuntimeApp::newModulesFactories()
     factories.push_back(
         std::make_shared<InternalModuleFactory<elrond::Servo>>(
             elrond::Servo::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<Udp>>(
-            Udp::_getInternalName()
         )
     );
 
