@@ -12,7 +12,7 @@
 
                     elrond::interfaces::DebugOutInterface &_dout;
                     Vector<ModuleHandleP> modules;
-                    Vector<ChannelManagerP> chmgrs;
+                    Vector<elrond::runtime::ChannelManagerP> chmgrs;
                     bool _loop;
 
                     ModuleHandleP findModule(String name) const;
@@ -28,7 +28,7 @@
 
                     ModuleInfo const& defineModule(String name, String type, ModulesFactories& factories);
                     void initModule(String name, elrond::config::ConfigMap &cm) const;
-                    ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
+                    elrond::runtime::ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
 
                     void start();
                     void loop();

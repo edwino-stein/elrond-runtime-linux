@@ -3,41 +3,45 @@
 
     #include "rtTypes.hpp"
 
-    class ChannelManager : public elrond::channel::BaseChannelManager {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
+            class ChannelManager : public elrond::channel::BaseChannelManager {
 
-            const elrond::sizeT totalTx;
-            const elrond::sizeT totalRx;
-            std::unique_ptr<RxChCollectionP[]> rxChannels;
+                protected:
 
-            std::unique_ptr<elrond::byte[]> txBuffer;
-            Mutex txBufferMtx;
+                    const elrond::sizeT totalTx;
+                    const elrond::sizeT totalRx;
+                    std::unique_ptr<RxChCollectionP[]> rxChannels;
 
-            void rxTrigger(const elrond::sizeT ch, elrond::word data) override;
-            elrond::byte *getTxBuffer() const override;
+                    std::unique_ptr<elrond::byte[]> txBuffer;
+                    Mutex txBufferMtx;
 
-            const int txFps;
-            bool running = false;
-            Thread thread;
+                    void rxTrigger(const elrond::sizeT ch, elrond::word data) override;
+                    elrond::byte* getTxBuffer() const override;
 
-            static void entryPoint(ChannelManager *cm);
+                    const int txFps;
+                    bool running = false;
+                    Thread thread;
 
-        public:
+                    static void entryPoint(ChannelManager* cm);
 
-            ChannelManager(elrond::modules::BaseTransportModule &transport, const elrond::sizeT totalTx, const elrond::sizeT totalRx, const unsigned int txFps);
-            ~ChannelManager();
+                public:
 
-            void addRxListener(const elrond::sizeT ch, elrond::channel::RxChannel *rx) override;
-            void txTrigger(const elrond::sizeT ch, elrond::word data) override;
-            bool txSync(const bool force) override;
+                    ChannelManager(elrond::modules::BaseTransportModule& transport, const elrond::sizeT totalTx, const elrond::sizeT totalRx, const unsigned int txFps);
+                    ~ChannelManager();
 
-            elrond::sizeT getTotalTx() const override;
-            elrond::sizeT getTotalRx() const override;
+                    void addRxListener(const elrond::sizeT ch, elrond::channel::RxChannel* rx) override;
+                    void txTrigger(const elrond::sizeT ch, elrond::word data) override;
+                    bool txSync(const bool force) override;
 
-            void run();
-            void stop(bool join);
+                    elrond::sizeT getTotalTx() const override;
+                    elrond::sizeT getTotalRx() const override;
 
-    };
+                    void run();
+                    void stop(const bool join);
+            };
+        }
+    }
 
 #endif

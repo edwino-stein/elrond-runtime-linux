@@ -6,6 +6,8 @@
 #include "standalone/Stacktrace.hpp"
 
 using elrond::runtime::RuntimeApp;
+using elrond::runtime::ChannelManager;
+using elrond::runtime::ChannelManagerP;
 using elrond::config::ConfigMapAllocator;
 
 int main(int argc, char const* argv[]){
