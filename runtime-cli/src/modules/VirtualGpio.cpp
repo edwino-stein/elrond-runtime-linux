@@ -1,4 +1,4 @@
-#include "standalone/modules/VirtualGpio.hpp"
+#include "modules/VirtualGpio.hpp"
 
 using elrond::modules::BaseGpioModule;
 using elrond::config::ConfigMap;

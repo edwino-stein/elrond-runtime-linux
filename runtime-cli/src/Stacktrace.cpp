@@ -1,4 +1,4 @@
-#include "standalone/Stacktrace.hpp"
+#include "Stacktrace.hpp"
 
 #include <execinfo.h>
 #include <cxxabi.h>

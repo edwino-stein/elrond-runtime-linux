@@ -3,14 +3,15 @@
 
     #include "elrond.hpp"
 
-    class OStremDebugOut : public elrond::interfaces::DebugOutInterface {
+    class OStreamDebugOut : public elrond::interfaces::DebugOutInterface {
+
         protected:
             std::ostream& os;
 
         public:
 
-            OStremDebugOut(std::ostream& os);
-            virtual ~OStremDebugOut();
+            OStreamDebugOut(std::ostream& os);
+            virtual ~OStreamDebugOut();
 
             const elrond::interfaces::DebugOutInterface& put(const char c[]) const  override;
             const elrond::interfaces::DebugOutInterface& put(char c) const  override;

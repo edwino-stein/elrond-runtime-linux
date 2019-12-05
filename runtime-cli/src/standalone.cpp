@@ -1,13 +1,13 @@
 #include <fstream>
 
-#include "standalone/standalone.hpp"
-#include "standalone/OStremDebugOut.hpp"
-#include "standalone/Signal.hpp"
-#include "standalone/Stacktrace.hpp"
+#include "standalone.hpp"
+#include "OStreamDebugOut.hpp"
+#include "Signal.hpp"
+#include "Stacktrace.hpp"
 
-#include "standalone/modules/VirtualGpio.hpp"
-#include "standalone/modules/Serial.hpp"
-#include "standalone/modules/Udp.hpp"
+#include "modules/VirtualGpio.hpp"
+#include "modules/Serial.hpp"
+#include "modules/Udp.hpp"
 
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
@@ -21,7 +21,7 @@ using elrond::runtime::Exception;
 
 int main(int argc, char const* argv[]){
 
-    OStremDebugOut dout(std::cout);
+    OStreamDebugOut dout(std::cout);
     RuntimeApp app(dout);
 
     Signal::attach(SIG::INT, [&app](){

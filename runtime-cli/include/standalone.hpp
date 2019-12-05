@@ -2,8 +2,7 @@
     #define _ELROND_RUNTIME_STANDALONE_HPP
 
     #include "elrond-runtime.hpp"
-
-    #include "standalone/json.hpp"
+    #include "json.hpp"
 
     using Json = nlohmann::json;
 

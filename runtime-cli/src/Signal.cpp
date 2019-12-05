@@ -1,4 +1,4 @@
-#include "standalone/Signal.hpp"
+#include "Signal.hpp"
 
 std::map<enum SIG, Signal::signalCallbackT> Signal::callbacks;
 
