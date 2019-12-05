@@ -1,19 +1,8 @@
 # Main settings
 PROJECT_NAME = elrond-runtime
-SRC_DIR = src
-INCLUDE_DIR = include
 
-# Search for all srcs and includes files
-SRC_FILES = $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -or -name "*.c" \) -not -path "$(SRC_DIR)/standalone/*" )
-SRC_STANDALONE_FILES = $(shell find $(SRC_DIR)/standalone -type f \( -name "*.cpp" -or -name "*.c" \))
-INCLUDE_FILES = $(shell find $(INCLUDE_DIR) -type f \( -name "*.hpp" -or -name "*.h" \) )
-
-# Defines src path and source file extensions
-VPATH = src: $(SRC_DIR)
-vpath %.hpp $(INCLUDE_DIR)
-vpath %.h $(INCLUDE_DIR)
-vpath %.cpp $(SRC_DIR)
-vpath %.c $(SRC_DIR)
+BASE_RT_DIR = runtime-base
+CLI_RT_DIR = runtime-cli
 
 .PHONY: all clean clean-all run
 .DEFAULT_GOAL := all
@@ -21,12 +10,26 @@ vpath %.c $(SRC_DIR)
 # Set JSON config file to run rule
 cfg?=teste.json
 
+.PHONY: all clean run clean-base clean-cli
+
 # *********************************** RULES ************************************
-include Linux.mk
 
-all: lib$(PROJECT_NAME).a $(PROJECT_NAME)
-clean: clean-build
-clean-all: clean-build-all
+all: build/$(BASE_RT_DIR)/lib$(PROJECT_NAME).a build/$(CLI_RT_DIR)/$(PROJECT_NAME)
 
-run: $(PROJECT_NAME)
-	./$(BUILD_DIR)/$(PROJECT_NAME) $(cfg)
+run: build/$(CLI_RT_DIR)/$(PROJECT_NAME)
+	./build/$(CLI_RT_DIR)/$(PROJECT_NAME) $(cfg)
+
+build/$(CLI_RT_DIR)/$(PROJECT_NAME):
+	@cd $(CLI_RT_DIR) && $(MAKE) $(notdir $@)
+
+build/$(BASE_RT_DIR)/lib$(PROJECT_NAME).a:
+	@cd $(BASE_RT_DIR) && $(MAKE) $(notdir $@)
+
+clean:
+	rm -rf build
+
+clean-base:
+	@cd $(BASE_RT_DIR) && $(MAKE) clean
+
+clean-cli:
+	@cd $(CLI_RT_DIR) && $(MAKE) clean
