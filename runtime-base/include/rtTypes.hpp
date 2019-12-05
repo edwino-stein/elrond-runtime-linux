@@ -22,6 +22,7 @@
         namespace runtime {
 
             class RuntimeApp;
+            class OStreamDebugOut;
 
             class ChannelManager;
             class RxChCollection;

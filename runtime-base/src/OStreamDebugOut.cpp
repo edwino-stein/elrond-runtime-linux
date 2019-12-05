@@ -1,5 +1,6 @@
 #include "OStreamDebugOut.hpp"
 
+using elrond::runtime::OStreamDebugOut;
 using elrond::interfaces::DebugOutInterface;
 
 OStreamDebugOut::OStreamDebugOut(std::ostream& os) : os(os){}

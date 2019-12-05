@@ -1,7 +1,6 @@
 #include <fstream>
 
 #include "standalone.hpp"
-#include "OStreamDebugOut.hpp"
 #include "Signal.hpp"
 #include "Stacktrace.hpp"
 
@@ -11,6 +10,7 @@
 #include "modules/Udp.hpp"
 
 using elrond::runtime::RuntimeApp;
+using elrond::runtime::OStreamDebugOut;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
 using elrond::runtime::ModuleFactoryP;

@@ -4,6 +4,7 @@
     #include "rtTypes.hpp"
 
     #include "application/RuntimeApp.hpp"
+    #include "OStreamDebugOut.hpp"
 
     #include "channel/ChannelManager.hpp"
     #include "channel/RxChCollection.hpp"
