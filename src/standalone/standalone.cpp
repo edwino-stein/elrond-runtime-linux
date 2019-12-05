@@ -5,6 +5,7 @@
 #include "standalone/Signal.hpp"
 #include "standalone/Stacktrace.hpp"
 
+using elrond::runtime::RuntimeApp;
 using elrond::config::ConfigMapAllocator;
 
 int main(int argc, char const* argv[]){

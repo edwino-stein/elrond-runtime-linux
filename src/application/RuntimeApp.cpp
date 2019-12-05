@@ -11,6 +11,8 @@
 #include "modules/Serial.hpp"
 #include "modules/Udp.hpp"
 
+using elrond::runtime::RuntimeApp;
+
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
 using elrond::interfaces::DebugOutInterface;
@@ -19,9 +21,11 @@ using elrond::modules::BaseInputDriverModule;
 using elrond::config::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
-elrond::interfaces::RuntimeInterface* elrond::__rtInstance__ = nullptr;
+RuntimeInterface* elrond::__rtInstance__ = nullptr;
 
-RuntimeApp::RuntimeApp(DebugOutInterface& dout): _dout(dout), _loop(false)
+RuntimeApp::RuntimeApp(DebugOutInterface& dout):
+_dout(dout),
+_loop(false)
 {
     elrond::__rtInstance__ = this;
 }
@@ -193,7 +197,8 @@ ChannelManagerP RuntimeApp::defineChannelManager(String transport, const elrond:
     return chmgr;
 }
 
-BaseGpioModule& RuntimeApp::getGpioService() const {
+BaseGpioModule& RuntimeApp::getGpioService() const
+{
 
     auto it = std::find_if(
         this->modules.begin(),
@@ -209,7 +214,8 @@ BaseGpioModule& RuntimeApp::getGpioService() const {
     );
 }
 
-BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const {
+BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const
+{
 
     elrond::sizeT i = 0;
     auto it = std::find_if(
@@ -229,11 +235,13 @@ BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const
     );
 }
 
-const DebugOutInterface& RuntimeApp::dout() const {
+const DebugOutInterface& RuntimeApp::dout() const
+{
     return (DebugOutInterface&) this->_dout;
 }
 
-void RuntimeApp::onError(const char* error){
+void RuntimeApp::onError(const char* error)
+{
     throw Exception(error);
 }
 

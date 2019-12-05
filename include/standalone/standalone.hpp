@@ -17,11 +17,11 @@
         .version = std::to_string(ELROND_API_VERSION) + "." + std::to_string(ELROND_API_REVISION) + "-alpha"
     };
 
-    void loadApplication(int argc, char const* argv[], RuntimeApp& app);
-    void stopApplication(RuntimeApp& app, bool force, int code);
-    void parseModules(RuntimeApp& app, Json& cfg);
-    void initModules(RuntimeApp& app, Json& cfg);
-    void parseChmgrs(RuntimeApp& app, Json &cfg);
+    void loadApplication(int argc, char const* argv[], elrond::runtime::RuntimeApp& app);
+    void stopApplication(elrond::runtime::RuntimeApp& app, bool force, int code);
+    void parseModules(elrond::runtime::RuntimeApp& app, Json& cfg);
+    void initModules(elrond::runtime::RuntimeApp& app, Json& cfg);
+    void parseChmgrs(elrond::runtime::RuntimeApp& app, Json &cfg);
     void readJsonFromFile(String file, Json& json);
     void jsonToCMA(Json &json, CustomConfigMapAllocator &cma);
     int main(int argc, char const* argv[]);

@@ -11,9 +11,14 @@
     #include <thread>
     #include <mutex>
 
+    namespace elrond {
+        namespace runtime {
+            class RuntimeApp;
+        }
+    }
+
     class CustomConfigMapAllocator;
     class DynamicConfigMemory;
-    class RuntimeApp;
     class ModuleFactory;
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
