@@ -13,9 +13,14 @@
 
     namespace elrond {
         namespace runtime {
+
             class RuntimeApp;
+
             class ChannelManager;
+            class RxChCollection;
             using ChannelManagerP = std::shared_ptr<ChannelManager>;
+            using RxChCollectionP = std::unique_ptr<RxChCollection>;
+
         }
     }
 
@@ -25,7 +30,6 @@
     template<class T> class InternalModuleFactory;
     class DlModuleFactory;
     class ModuleHandle;
-    class RxChCollection;
     class Exception;
 
     class VirtualGpio;
@@ -38,7 +42,6 @@
     using Mutex = std::mutex;
     using MtxLockGuard = std::lock_guard<std::mutex>;
     using ModuleHandleP = std::shared_ptr<ModuleHandle>;
-    using RxChCollectionP = std::unique_ptr<RxChCollection>;
 
     using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
     using ModulesFactories = Vector<ModuleFactoryP>;

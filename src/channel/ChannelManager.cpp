@@ -3,6 +3,8 @@
 #include "channel/RxChCollection.hpp"
 
 using elrond::runtime::ChannelManager;
+using elrond::runtime::RxChCollection;
+using elrond::runtime::RxChCollectionP;
 
 using elrond::interfaces::RuntimeInterface;
 using elrond::modules::BaseTransportModule;

@@ -1,20 +1,24 @@
 #if !defined  _ELROND_RUNTIME_RX_CH_COLLECTION_HPP
     #define _ELROND_RUNTIME_RX_CH_COLLECTION_HPP
 
-    #include "elrond.hpp"
     #include "rtTypes.hpp"
 
-    class RxChCollection {
+    namespace elrond {
+        namespace runtime {
 
-        protected:
-            Vector<elrond::channel::RxChannel *>channels;
+            class RxChCollection {
 
-        public:
+                protected:
+                    Vector<elrond::channel::RxChannel*> channels;
 
-            RxChCollection();
+                public:
 
-            void push(elrond::channel::RxChannel *rx);
-            void trigger(const elrond::word data);
-    };
+                    RxChCollection();
+
+                    void push(elrond::channel::RxChannel* rx);
+                    void trigger(const elrond::word data);
+            };
+        }
+    }
 
 #endif

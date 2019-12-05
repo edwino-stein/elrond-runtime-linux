@@ -12,7 +12,7 @@
 
                     const elrond::sizeT totalTx;
                     const elrond::sizeT totalRx;
-                    std::unique_ptr<RxChCollectionP[]> rxChannels;
+                    std::unique_ptr<elrond::runtime::RxChCollectionP[]> rxChannels;
 
                     std::unique_ptr<elrond::byte[]> txBuffer;
                     Mutex txBufferMtx;
