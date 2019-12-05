@@ -7,7 +7,6 @@
 #include "modules/DlModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
 
-#include "modules/Serial.hpp"
 #include "modules/Udp.hpp"
 
 using elrond::runtime::RuntimeApp;
@@ -324,12 +323,6 @@ ModulesFactoriesV RuntimeApp::newModulesFactories()
     factories.push_back(
         std::make_shared<InternalModuleFactory<elrond::Servo>>(
             elrond::Servo::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<Serial>>(
-            Serial::_getInternalName()
         )
     );
 

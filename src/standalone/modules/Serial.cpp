@@ -1,4 +1,4 @@
-#include "modules/Serial.hpp"
+#include "standalone/modules/Serial.hpp"
 
 #include <cstring>
 #include <fcntl.h>
@@ -6,15 +6,14 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "exceptions/Exception.hpp"
-
-using namespace elrond::modules;
+using elrond::runtime::Exception;
 using elrond::config::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
 Serial::~Serial(){}
 
-void Serial::onInit(elrond::config::ConfigMap &cfg){
+void Serial::onInit(elrond::config::ConfigMap& cfg)
+{
 
     if(!cfg.isString("path")) elrond::error("Invalid or missing key \"path\".");
     String path(cfg.asString("path"));
@@ -27,26 +26,26 @@ void Serial::onInit(elrond::config::ConfigMap &cfg){
     this->port = open(path.c_str(), O_RDWR);
     if(tcgetattr(this->port, &(this->tty)) != 0) elrond::error(strerror(errno));
 
-    this->tty.c_cflag &= ~PARENB; // Clear parity bit, disabling parity (most common)
-    this->tty.c_cflag &= ~CSTOPB; // Clear stop field, only one stop bit used in communication (most common)
-    this->tty.c_cflag |= CS8; // 8 bits per byte (most common)
-    this->tty.c_cflag &= ~CRTSCTS; // Disable RTS/CTS hardware flow control (most common)
-    this->tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
+    this->tty.c_cflag &= ~PARENB;           // Clear parity bit, disabling parity (most common)
+    this->tty.c_cflag &= ~CSTOPB;           // Clear stop field, only one stop bit used in communication (most common)
+    this->tty.c_cflag |= CS8;               // 8 bits per byte (most common)
+    this->tty.c_cflag &= ~CRTSCTS;          // Disable RTS/CTS hardware flow control (most common)
+    this->tty.c_cflag |= CREAD | CLOCAL;    // Turn on READ & ignore ctrl lines (CLOCAL = 1)
 
     this->tty.c_lflag &= ~ICANON;
-    this->tty.c_lflag &= ~ECHO; // Disable echo
-    this->tty.c_lflag &= ~ECHOE; // Disable erasure
-    this->tty.c_lflag &= ~ECHONL; // Disable new-line echo
-    this->tty.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
-    this->tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
-    this->tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL); // Disable any special handling of received bytes
+    this->tty.c_lflag &= ~ECHO;             // Disable echo
+    this->tty.c_lflag &= ~ECHOE;            // Disable erasure
+    this->tty.c_lflag &= ~ECHONL;           // Disable new-line echo
+    this->tty.c_lflag &= ~ISIG;             // Disable interpretation of INTR, QUIT and SUSP
+    this->tty.c_iflag &= ~(IXON | IXOFF | IXANY);   // Turn off s/w flow ctrl
+    this->tty.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);  // Disable any special handling of received bytes
 
-    this->tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
-    this->tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
-    // tty.c_oflag &= ~OXTABS; // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
-    // tty.c_oflag &= ~ONOEOT; // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
+    this->tty.c_oflag &= ~OPOST;            // Prevent special interpretation of output bytes (e.g. newline chars)
+    this->tty.c_oflag &= ~ONLCR;            // Prevent conversion of newline to carriage return/line feed
+    // tty.c_oflag &= ~OXTABS;                 // Prevent conversion of tabs to spaces (NOT PRESENT ON LINUX)
+    // tty.c_oflag &= ~ONOEOT;                 // Prevent removal of C-d chars (0x004) in output (NOT PRESENT ON LINUX)
 
-    this->tty.c_cc[VTIME] = 10;    // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
+    this->tty.c_cc[VTIME] = 10;             // Wait for up to 1s (10 deciseconds), returning as soon as any data is received.
     this->tty.c_cc[VMIN] = 0;
 
     // Set in/out baud rate
@@ -55,18 +54,22 @@ void Serial::onInit(elrond::config::ConfigMap &cfg){
 
     this->getLoopControl().allow = true;
     this->getLoopControl().async = true;
-    this->getLoopControl().time = 500;
+    this->getLoopControl().time = 10;
 }
 
-void Serial::onStart(){
+void Serial::onStart()
+{
     if(tcsetattr(this->port, TCSANOW, &(this->tty)) != 0) elrond::error(strerror(errno));
 }
 
-void Serial::onStop(){
+void Serial::onStop()
+{
     close(this->port);
 }
 
-void Serial::loop(){
+void Serial::loop()
+{
+
     if(this->cm == nullptr) return;
 
     const elrond::sizeT length = this->cm->getRxBufferSize();
@@ -78,16 +81,18 @@ void Serial::loop(){
     tcflush(this->port, TCIOFLUSH);
 }
 
-void Serial::send(elrond::byte data[], const elrond::sizeT length){
+void Serial::send(elrond::byte data[], const elrond::sizeT length)
+{
     write(this->port, data, length);
 }
 
-void Serial::setChannelManager(BaseChannelManager *cm){
+void Serial::setChannelManager(BaseChannelManager* cm)
+{
     if(this->cm == nullptr) this->cm = cm;
 }
 
-speed_t Serial::getSpeed(unsigned int speed){
-
+speed_t Serial::getSpeed(unsigned int speed)
+{
     switch (speed) {
         case 50: return B50;
         case 75: return B75;
@@ -112,34 +117,42 @@ speed_t Serial::getSpeed(unsigned int speed){
     return B0;
 }
 
-const char *Serial::_getInternalName(){
+const char* Serial::_getInternalName()
+{
     return "elrond::runtime::Serial";
 }
 
-const char *Serial::_infoMainClassName(){
+const char* Serial::_infoMainClassName()
+{
     return "Serial";
 }
 
-int Serial::_infoApiVersion(){
+int Serial::_infoApiVersion()
+{
     return ELROND_API_VERSION;
 }
 
-int Serial::_infoApiRevision(){
+int Serial::_infoApiRevision()
+{
     return ELROND_API_REVISION;
 }
 
-const char *Serial::_infoPrettyName(){
+const char* Serial::_infoPrettyName()
+{
     return "Serial/UART Transport";
 }
 
-const char *Serial::_infoAuthorName(){
+const char* Serial::_infoAuthorName()
+{
     return "Edwino Stein";
 }
 
-const char *Serial::_infoAuthorEmail(){
+const char* Serial::_infoAuthorEmail()
+{
     return "edwino.stein@gmail.com";
 }
 
-const char *Serial::_infoVersion(){
+const char* Serial::_infoVersion()
+{
     return "0.1";
 }

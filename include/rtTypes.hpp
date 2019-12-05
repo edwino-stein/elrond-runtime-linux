@@ -65,7 +65,6 @@
         }
     }
 
-    class Serial;
     class Udp;
 
 #endif

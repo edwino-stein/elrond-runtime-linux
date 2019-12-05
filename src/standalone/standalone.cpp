@@ -6,6 +6,7 @@
 #include "standalone/Stacktrace.hpp"
 
 #include "standalone/modules/VirtualGpio.hpp"
+#include "standalone/modules/Serial.hpp"
 
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
@@ -230,4 +231,11 @@ void pushStandaloneModules(ModulesFactoriesV& factories)
             VirtualGpio::_getInternalName()
         )
     );
+
+    factories.push_back(
+        std::make_shared<InternalModuleFactory<Serial>>(
+            Serial::_getInternalName()
+        )
+    );
+
 }

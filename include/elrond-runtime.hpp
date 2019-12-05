@@ -18,6 +18,5 @@
     #include "modules/InternalModuleFactory.hpp"
     #include "modules/DlModuleFactory.hpp"
 
-    #include "modules/Serial.hpp"
     #include "modules/Udp.hpp"
 #endif
