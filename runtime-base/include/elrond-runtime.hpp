@@ -16,6 +16,5 @@
     #include "modules/ModuleHandle.hpp"
     #include "modules/ModuleFactory.hpp"
     #include "modules/InternalModuleFactory.hpp"
-    #include "modules/DlModuleFactory.hpp"
 
 #endif

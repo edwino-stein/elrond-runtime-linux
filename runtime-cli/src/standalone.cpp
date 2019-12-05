@@ -5,6 +5,7 @@
 #include "Signal.hpp"
 #include "Stacktrace.hpp"
 
+#include "modules/DlModuleFactory.hpp"
 #include "modules/VirtualGpio.hpp"
 #include "modules/Serial.hpp"
 #include "modules/Udp.hpp"
@@ -12,8 +13,10 @@
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
 using elrond::runtime::ChannelManagerP;
+using elrond::runtime::ModuleFactoryP;
 using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::InternalModuleFactory;
+using elrond::runtime::ModuleInfo;
 using elrond::runtime::CustomConfigMapAllocator;
 using elrond::runtime::DynamicConfigMemory;
 using elrond::config::ConfigMapAllocator;
@@ -98,14 +101,24 @@ void parseModules(RuntimeApp& app, Json& cfg){
     elrond::sizeT i = 1;
     for (auto& el : cfg.items()){
 
+        ModuleInfo info;
         String name(el.key());
         String type(el.value());
         std::cout << "\t#" << i++ << " Define instance \"" << name;
         std::cout << "\" from \"" << type << "\"" << std::endl;
 
-        auto info = app.defineModule(name, type, factories);
+        try{
+            info = app.defineModule(name, type, factories);
+        }
+        catch(Exception &e){
+            ModuleFactoryP f = std::make_shared<DlModuleFactory>(type, &app);
+            factories.push_back(f);
+            info = app.defineModule(name, type, factories);
+        }
+
         std::cout << "\t   Created instance \"" << name;
         std::cout << "\" of " << info.about() << std::endl;
+
     }
 }
 

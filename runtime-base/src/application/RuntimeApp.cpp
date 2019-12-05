@@ -4,7 +4,6 @@
 #include "modules/ModuleHandle.hpp"
 #include "channel/ChannelManager.hpp"
 #include "modules/InternalModuleFactory.hpp"
-#include "modules/DlModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
 
 using elrond::runtime::RuntimeApp;
@@ -17,7 +16,6 @@ using elrond::runtime::ModuleFactoryP;
 using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::ModuleInfo;
 using elrond::runtime::InternalModuleFactory;
-using elrond::runtime::DlModuleFactory;
 using elrond::runtime::Exception;
 
 using elrond::interfaces::RuntimeInterface;
@@ -277,10 +275,7 @@ ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactoriesV &factories
 
     if(it != factories.end()) return *it;
 
-    ModuleFactoryP f = std::make_shared<DlModuleFactory>(name, app);
-    factories.push_back(f);
-
-    return f;
+    throw Exception("No module instance`s factory defined");
 }
 
 ModulesFactoriesV RuntimeApp::newModulesFactories()

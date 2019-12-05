@@ -1,18 +1,10 @@
 #include "modules/DlModuleFactory.hpp"
 
-#include "exceptions/Exception.hpp"
-
 #include <dlfcn.h>
 
-using elrond::runtime::DlModuleFactory;
 using elrond::runtime::ModuleFactory;
-using elrond::runtime::dlModCreateT;
-using elrond::runtime::dlModDestroyT;
-using elrond::runtime::dlModSetAppT;
-using elrond::runtime::dlModStringHandleT;
-using elrond::runtime::dlModIntHandleT;
-using elrond::runtime::Exception;
 
+using elrond::runtime::Exception;
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
 
