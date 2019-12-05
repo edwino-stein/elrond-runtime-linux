@@ -234,7 +234,7 @@ const DebugOutInterface& RuntimeApp::dout() const {
 }
 
 void RuntimeApp::onError(const char* error){
-    throw Exception(error, 2);
+    throw Exception(error);
 }
 
 BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const

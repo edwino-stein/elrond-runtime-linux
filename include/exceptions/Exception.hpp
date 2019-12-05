@@ -3,7 +3,6 @@
 
     #include <exception>
     #include "rtTypes.hpp"
-    #include "util/Stacktrace.hpp"
 
     class Exception {
 
@@ -11,7 +10,6 @@
 
             std::unique_ptr<Exception> _prev;
             String _message;
-            Stacktrace::SymbolCollectionT stacktrace;
 
             Exception();
 
@@ -23,8 +21,8 @@
 
             Exception(const Exception &e);
             Exception(String message, const Exception &prev);
-            Exception(String message, const elrond::sizeT skipSt = 0);
-            Exception(const std::exception &e, const elrond::sizeT skipSt = 0);
+            Exception(String message);
+            Exception(const std::exception &e);
 
             virtual ~Exception();
             virtual String what() const;

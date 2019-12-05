@@ -5,22 +5,18 @@ Exception::Exception():
 _prev(nullptr), _message("Exception"), message(_message){}
 
 Exception::Exception(const Exception &e):
-_prev(nullptr), _message(e._message), stacktrace(e.stacktrace), message(_message){
+_prev(nullptr), _message(e._message), message(_message){
     if(e._prev != nullptr) this->_prev.reset(new Exception(*e._prev));
 }
 
 Exception::Exception(String message, const Exception &prev):
 _prev(new Exception(prev)), _message(message), message(_message){}
 
-Exception::Exception(String message, const elrond::sizeT skipSt):
-_prev(nullptr), _message(message), message(_message){
-    Stacktrace::dump(this->stacktrace, skipSt + 1);
-}
+Exception::Exception(String message):
+_prev(nullptr), _message(message), message(_message){}
 
-Exception::Exception(const std::exception &e, const elrond::sizeT skipSt):
-_prev(nullptr), _message(e.what()), message(_message){
-    Stacktrace::dump(this->stacktrace, skipSt + 1);
-}
+Exception::Exception(const std::exception &e):
+_prev(nullptr), _message(e.what()), message(_message){}
 
 Exception::~Exception(){}
 
@@ -30,11 +26,6 @@ void Exception::what(std::ostream &oss) const {
 
     oss << std::endl << " ********** EXCEPTION STACK **********" << std::endl;
     Exception::dumpStack(oss, *this, i, le);
-
-    if(!le->stacktrace.empty()){
-        oss << std::endl;
-        Stacktrace::dump(oss, le->stacktrace);
-    }
 }
 
 String Exception::what() const {

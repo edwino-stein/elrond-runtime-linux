@@ -1,5 +1,5 @@
-#if !defined  _ELROND_STACKTRACE_HPP
-    #define _ELROND_STACKTRACE_HPP
+#if !defined  _ELROND_STACKTRACE_STANDALONE_HPP
+    #define _ELROND_STACKTRACE_STANDALONE_HPP
 
     #include "rtTypes.hpp"
 

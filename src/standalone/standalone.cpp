@@ -3,6 +3,7 @@
 #include "standalone/standalone.hpp"
 #include "standalone/OStremDebugOut.hpp"
 #include "standalone/Signal.hpp"
+#include "standalone/Stacktrace.hpp"
 
 using elrond::config::ConfigMapAllocator;
 
@@ -32,7 +33,6 @@ int main(int argc, char const* argv[]){
 
         stopApplication(app, true, 128 + (int) SIG::SEGV);
     });
-
 
     try{
         std::cout << " * Starting " << saInfo.about() << "..." << std::endl;

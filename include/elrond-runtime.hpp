@@ -21,6 +21,4 @@
     #include "modules/Udp.hpp"
     #include "modules/VirtualGpio.hpp"
 
-    #include "util/Stacktrace.hpp"
-
 #endif
