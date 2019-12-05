@@ -10,19 +10,19 @@ CLI_RT_DIR = runtime-cli
 # Set JSON config file to run rule
 cfg?=teste.json
 
-.PHONY: all clean run clean-base clean-cli
+.PHONY: all clean run clean-base clean-cli $(PROJECT_NAME) lib$(PROJECT_NAME).a
 
 # *********************************** RULES ************************************
 
-all: build/$(BASE_RT_DIR)/lib$(PROJECT_NAME).a build/$(CLI_RT_DIR)/$(PROJECT_NAME)
+all: lib$(PROJECT_NAME).a $(PROJECT_NAME)
 
-run: build/$(CLI_RT_DIR)/$(PROJECT_NAME)
+run: $(PROJECT_NAME)
 	./build/$(CLI_RT_DIR)/$(PROJECT_NAME) $(cfg)
 
-build/$(CLI_RT_DIR)/$(PROJECT_NAME):
+$(PROJECT_NAME):
 	@cd $(CLI_RT_DIR) && $(MAKE) $(notdir $@)
 
-build/$(BASE_RT_DIR)/lib$(PROJECT_NAME).a:
+lib$(PROJECT_NAME).a:
 	@cd $(BASE_RT_DIR) && $(MAKE) $(notdir $@)
 
 clean:
