@@ -18,7 +18,6 @@ using elrond::runtime::ModuleFactoryP;
 using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::ModuleInfo;
-using elrond::runtime::DynamicConfigMemory;
 using elrond::runtime::Exception;
 
 int main(int argc, char const* argv[]){
