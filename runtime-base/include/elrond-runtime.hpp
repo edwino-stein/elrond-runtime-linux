@@ -9,7 +9,6 @@
     #include "channel/ChannelManager.hpp"
     #include "channel/RxChCollection.hpp"
 
-    #include "config/CustomConfigMapAllocator.hpp"
     #include "config/DynamicConfigMemory.hpp"
 
     #include "exceptions/Exception.hpp"

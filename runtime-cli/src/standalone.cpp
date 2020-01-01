@@ -18,9 +18,7 @@ using elrond::runtime::ModuleFactoryP;
 using elrond::runtime::ModulesFactoriesV;
 using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::ModuleInfo;
-using elrond::runtime::CustomConfigMapAllocator;
 using elrond::runtime::DynamicConfigMemory;
-using elrond::config::ConfigMapAllocator;
 using elrond::runtime::Exception;
 
 int main(int argc, char const* argv[]){
@@ -208,34 +206,6 @@ void readJsonFromFile(String file, Json& json)
     }
     catch(Exception &e){
         throw Exception("Unable to read config file", e);
-    }
-}
-
-void jsonToCMA(Json &json, CustomConfigMapAllocator &cma)
-{
-
-    if(!json.is_object()) return;
-
-    for(auto& el : json.items()){
-
-        if(el.value().is_array() || el.value().is_object()) continue;
-
-        const char *key = el.key().c_str();
-
-        if(el.value().is_number_integer())
-            ((ConfigMapAllocator&) cma).push(key, el.value().get<int>());
-
-        if(el.value().is_number_float())
-            ((ConfigMapAllocator&) cma).push(key, el.value().get<double>());
-
-        if(el.value().is_boolean())
-            ((ConfigMapAllocator&) cma).push(key, el.value().get<bool>());
-
-        if(el.value().is_string()){
-            String str = el.value().get<String>();
-            if(str.size() == 1) ((ConfigMapAllocator&) cma).push(key, str[0]);
-            else cma.push(key, str);
-        }
     }
 }
 
