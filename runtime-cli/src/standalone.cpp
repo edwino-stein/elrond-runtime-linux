@@ -3,6 +3,7 @@
 #include "standalone.hpp"
 #include "Signal.hpp"
 #include "Stacktrace.hpp"
+#include "JsonConfigMap.hpp"
 
 #include "modules/DlModuleFactory.hpp"
 #include "modules/VirtualGpio.hpp"
@@ -138,11 +139,12 @@ void initModules(RuntimeApp& app, Json& cfg)
         std::cout << "\t#" << i++ << ": Initializing instance \"" <<  name << "\"..." << std::endl;
 
         Json &jc = init[name];
-        DynamicConfigMemory dcm;
-        CustomConfigMapAllocator cma(dcm);
+        if(!jc.is_object()) continue;
 
-        jsonToCMA(jc, cma);
-        app.initModule(name, cma);
+        std::vector<String> stringPool;
+        JsonConfigMap jcm(jc, stringPool);
+
+        app.initModule(name, jcm);
     }
 }
 
