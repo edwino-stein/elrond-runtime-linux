@@ -24,27 +24,31 @@ int main(int argc, char const* argv[]){
 
     OStreamDebugOut dout(std::cout);
     RuntimeApp app(dout);
+    bool loop = false;
 
-    Signal::attach(SIG::INT, [&app](){
+    Signal::attach(SIG::INT, [&app, &loop](){
         std::cout << "\b\b * Received Signal INT (" << (int) SIG::INT << "): ";
         std::cout << "Interrupt" << std::endl;
-        stopApplication(app, false, 0);
+        loop = false;
+        stopApplication(app, 0);
     });
 
-    Signal::attach(SIG::TERM, [&app](){
+    Signal::attach(SIG::TERM, [&app, &loop](){
         std::cout << "\b\b * Received Signal TERM (" << (int) SIG::TERM << "): ";
         std::cout << "Terminate" << std::endl;
-        stopApplication(app, true, 128 + (int) SIG::TERM);
+        loop = false;
+        stopApplication(app, 128 + (int) SIG::TERM);
     });
 
-    Signal::attach(SIG::SEGV, [&app](){
+    Signal::attach(SIG::SEGV, [&app, &loop](){
         std::cout << std::endl << " * Received Signal SEGV (" << (int) SIG::SEGV << "): ";
         std::cout << "Segmentation fault" << std::endl << std::endl;
 
         Stacktrace::dump(std::cout, 4);
         std::cout << std::endl;
 
-        stopApplication(app, true, 128 + (int) SIG::SEGV);
+        loop = false;
+        stopApplication(app, 128 + (int) SIG::SEGV);
     });
 
     try{
@@ -55,7 +59,8 @@ int main(int argc, char const* argv[]){
         app.start();
 
         std::cout << " * Application running (CTRL+C to stop)..." << '\n';
-        app.loop();
+        loop = true;
+        app.loop([&loop](){return loop;});
     }
     catch(Exception &e){
         std::cout << std::endl << " * An error occurred" << std::endl;
@@ -63,7 +68,7 @@ int main(int argc, char const* argv[]){
         std::cout << std::endl;
     }
 
-    stopApplication(app, false, 0);
+    app.stop(false);
     return 0;
 }
 
@@ -82,11 +87,11 @@ void loadApplication(int argc, char const* argv[], RuntimeApp& app){
     initModules(app, cfg);
 }
 
-void stopApplication(RuntimeApp& app, bool force, int code)
+void stopApplication(RuntimeApp& app, int code)
 {
     std::cout << " * Stopping all modules instances..." << std::endl;
-    app.stop(force);
-    std::exit(code);
+    app.stop(code > 0);
+    if(code > 0) std::exit(code);
 }
 
 void parseModules(RuntimeApp& app, Json& cfg){

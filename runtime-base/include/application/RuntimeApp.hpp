@@ -13,7 +13,6 @@
                     elrond::interfaces::DebugOutInterface &_dout;
                     Vector<elrond::runtime::ModuleHandleP> modules;
                     Vector<elrond::runtime::ChannelManagerP> chmgrs;
-                    bool _loop;
 
                     ModuleHandleP findModule(String name) const;
                     void startModules();
@@ -31,7 +30,7 @@
                     elrond::runtime::ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
 
                     void start();
-                    void loop();
+                    void loop(std::function<bool(void)> continueHandle);
                     void stop(bool force = false);
 
                     elrond::modules::BaseGpioModule &getGpioService() const override;

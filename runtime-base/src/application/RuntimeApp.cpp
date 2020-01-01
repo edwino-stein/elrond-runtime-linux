@@ -28,9 +28,7 @@ using elrond::channel::BaseChannelManager;
 
 RuntimeInterface* elrond::__rtInstance__ = nullptr;
 
-RuntimeApp::RuntimeApp(DebugOutInterface& dout):
-_dout(dout),
-_loop(false)
+RuntimeApp::RuntimeApp(DebugOutInterface& dout) : _dout(dout)
 {
     elrond::__rtInstance__ = this;
 }
@@ -128,10 +126,9 @@ void RuntimeApp::start()
     );
 
     this->startModules();
-    this->_loop = true;
 }
 
-void RuntimeApp::loop()
+void RuntimeApp::loop(std::function<bool(void)> continueHandle)
 {
 
     Vector<ModuleHandleP> syncLoopMods;
@@ -153,7 +150,7 @@ void RuntimeApp::loop()
         }
     );
 
-    while(this->_loop){
+    while(continueHandle()){
         std::for_each(
             syncLoopMods.begin(),
             syncLoopMods.end(),
@@ -164,11 +161,7 @@ void RuntimeApp::loop()
 
 void RuntimeApp::stop(bool force){
 
-    if(force) this->_loop = true;
-    if(!this->_loop) return;
-
     this->stopModules();
-    this->_loop = false;
 
     std::for_each(
         this->chmgrs.begin(),
