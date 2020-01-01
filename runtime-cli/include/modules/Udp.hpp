@@ -47,7 +47,7 @@
 
             virtual ~Udp();
 
-            void onInit(elrond::config::ConfigMap& cfg) override;
+            void onInit(elrond::interfaces::ConfigMapInterface& cfg) override;
             void onStart() override;
             void onStop() override;
             void loop() override;

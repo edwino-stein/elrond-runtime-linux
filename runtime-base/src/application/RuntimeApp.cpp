@@ -21,9 +21,9 @@ using elrond::runtime::Exception;
 using elrond::interfaces::RuntimeInterface;
 using elrond::interfaces::ModuleInterface;
 using elrond::interfaces::DebugOutInterface;
+using elrond::interfaces::ConfigMapInterface;
 using elrond::modules::BaseGpioModule;
 using elrond::modules::BaseInputDriverModule;
-using elrond::config::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
 RuntimeInterface* elrond::__rtInstance__ = nullptr;
@@ -44,7 +44,8 @@ ModuleInfo const& RuntimeApp::defineModule(String name, String type, ModulesFact
     return fac->info;
 }
 
-void RuntimeApp::initModule(String name, elrond::config::ConfigMap &cm) const {
+void RuntimeApp::initModule(String name, ConfigMapInterface &cm) const
+{
     try{
         ModuleHandleP mh = this->findModule(name);
         mh->module->onInit(cm);

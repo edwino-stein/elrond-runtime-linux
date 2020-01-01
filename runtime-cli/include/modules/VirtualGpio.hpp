@@ -9,7 +9,7 @@
 
             virtual ~VirtualGpio();
 
-            void onInit(elrond::config::ConfigMap& cfg) override;
+            void onInit(elrond::interfaces::ConfigMapInterface& cfg) override;
             void attach(elrond::gpio::BaseGpioPin& pin) override;
 
             static const char* _getInternalName();

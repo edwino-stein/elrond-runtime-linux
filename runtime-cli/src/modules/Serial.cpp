@@ -7,12 +7,12 @@
 #include <unistd.h>
 
 using elrond::runtime::Exception;
-using elrond::config::ConfigMap;
+using elrond::interfaces::ConfigMapInterface;
 using elrond::channel::BaseChannelManager;
 
 Serial::~Serial(){}
 
-void Serial::onInit(elrond::config::ConfigMap& cfg)
+void Serial::onInit(ConfigMapInterface& cfg)
 {
 
     if(!cfg.isString("path")) elrond::error("Invalid or missing key \"path\".");

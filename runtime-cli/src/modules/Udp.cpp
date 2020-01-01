@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 using elrond::runtime::Exception;
-using elrond::config::ConfigMap;
+using elrond::interfaces::ConfigMapInterface;
 using elrond::channel::BaseChannelManager;
 
 Udp::UdpSocket::UdpSocket():
@@ -109,7 +109,7 @@ bool Udp::UdpSocket::isValidPort(const int port)
 
 Udp::~Udp(){}
 
-void Udp::onInit(elrond::config::ConfigMap& cfg)
+void Udp::onInit(ConfigMapInterface& cfg)
 {
 
     if(!cfg.isInt("port")) elrond::error("Invalid or missing key \"port\".");

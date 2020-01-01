@@ -27,7 +27,7 @@
                     virtual ~RuntimeApp();
 
                     ModuleInfo const& defineModule(String name, String type, ModulesFactoriesV& factories);
-                    void initModule(String name, elrond::config::ConfigMap &cm) const;
+                    void initModule(String name, elrond::interfaces::ConfigMapInterface &cm) const;
                     elrond::runtime::ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
 
                     void start();

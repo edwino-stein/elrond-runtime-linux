@@ -1,7 +1,7 @@
 #include "modules/VirtualGpio.hpp"
 
 using elrond::modules::BaseGpioModule;
-using elrond::config::ConfigMap;
+using elrond::interfaces::ConfigMapInterface;
 using elrond::gpio::BaseGpioPin;
 using elrond::gpio::DOutPin;
 using elrond::gpio::ServoPin;
@@ -9,7 +9,7 @@ using elrond::gpio::PwmPin;
 
 VirtualGpio::~VirtualGpio(){}
 
-void VirtualGpio::onInit(ConfigMap& cfg)
+void VirtualGpio::onInit(ConfigMapInterface& cfg)
 {
     this->getLoopControl().allow = false;
     this->getLoopControl().async = false;
