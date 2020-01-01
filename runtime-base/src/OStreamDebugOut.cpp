@@ -55,6 +55,12 @@ const DebugOutInterface& OStreamDebugOut::put(double d) const
     return *this;
 }
 
+const DebugOutInterface& OStreamDebugOut::put(std::string str) const
+{
+    this->os << str;
+    return *this;
+}
+
 const DebugOutInterface& OStreamDebugOut::putLn(const char c[]) const
 {
     return this->put(c).putLn();
@@ -99,6 +105,11 @@ const DebugOutInterface& OStreamDebugOut::putLn(void) const
 {
     this->os << std::endl;
     return *this;
+}
+
+const DebugOutInterface& OStreamDebugOut::putLn(std::string str) const
+{
+    return this->put((std::string &) str).putLn();
 }
 
 const DebugOutInterface& OStreamDebugOut::flush() const

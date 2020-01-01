@@ -26,6 +26,8 @@
                     const elrond::interfaces::DebugOutInterface& put(unsigned long l) const  override;
                     const elrond::interfaces::DebugOutInterface& put(double d) const  override;
 
+                    const elrond::interfaces::DebugOutInterface& put(std::string str) const override;
+
                     const elrond::interfaces::DebugOutInterface& putLn(const char c[]) const override;
                     const elrond::interfaces::DebugOutInterface& putLn(char c) const override;
                     const elrond::interfaces::DebugOutInterface& putLn(unsigned char c) const override;
@@ -35,6 +37,8 @@
                     const elrond::interfaces::DebugOutInterface& putLn(unsigned long l) const override;
                     const elrond::interfaces::DebugOutInterface& putLn(double d) const override;
                     const elrond::interfaces::DebugOutInterface& putLn(void) const override;
+
+                    const elrond::interfaces::DebugOutInterface& putLn(std::string str) const override;
 
                     const elrond::interfaces::DebugOutInterface& flush() const override;
             };
