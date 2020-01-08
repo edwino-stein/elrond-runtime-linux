@@ -7,9 +7,14 @@ using elrond::runtime::ModuleInfo;
 using elrond::interfaces::ModuleInterface;
 
 ModuleFactory::ModuleFactory(String name):
-_name(name), name(_name), info(_info){}
+_name(name), info(_info){}
 
 ModuleFactory::~ModuleFactory(){}
+
+bool ModuleFactory::match(String const& name) const
+{
+    return this->_name == name;
+}
 
 String ModuleInfo::about() const
 {

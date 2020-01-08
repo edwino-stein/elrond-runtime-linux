@@ -264,7 +264,7 @@ ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactoriesV &factories
     auto it = std::find_if(
         factories.begin(),
         factories.end(),
-        [&name](ModuleFactoryP f){ return f->name == name; }
+        [&name](ModuleFactoryP f){ return f->match(name); }
     );
 
     if(it != factories.end()) return *it;

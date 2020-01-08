@@ -15,14 +15,14 @@
 
                 public:
 
-                    String const& name;
                     elrond::runtime::ModuleInfo const& info;
 
                     ModuleFactory(String name);
                     virtual ~ModuleFactory();
 
-                    virtual elrond::interfaces::ModuleInterface* getInstance()=0;
+                    virtual elrond::interfaces::ModuleInterface* getInstance(String const& instName)=0;
                     virtual void deleteInstance(elrond::interfaces::ModuleInterface* mod)=0;
+                    virtual bool match(String const& name) const;
             };
         }
     }

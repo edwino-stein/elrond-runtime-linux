@@ -8,7 +8,7 @@ using elrond::interfaces::ModuleInterface;
 ModuleHandle::ModuleHandle(String name, ModuleFactoryP factory):
 _name(name), _factory(factory), name(_name), module(_module), factory(_factory)
 {
-    this->_module = this->factory->getInstance();
+    this->_module = this->factory->getInstance(this->_name);
 }
 
 ModuleHandle::~ModuleHandle()
