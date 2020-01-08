@@ -22,7 +22,7 @@
             DlModuleFactory(String name, elrond::interfaces::RuntimeInterface* app);
             virtual ~DlModuleFactory();
 
-            elrond::interfaces::ModuleInterface* getInstance() override;
+            elrond::interfaces::ModuleInterface* getInstance(String const& instName) override;
             void deleteInstance(elrond::interfaces::ModuleInterface* mod) override;
     };
 

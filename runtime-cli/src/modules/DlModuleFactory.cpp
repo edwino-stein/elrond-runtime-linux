@@ -88,7 +88,7 @@ DlModuleFactory::~DlModuleFactory()
     }
 }
 
-ModuleInterface* DlModuleFactory::getInstance()
+ModuleInterface* DlModuleFactory::getInstance(String const& instName)
 {
     return this->_getInstance();
 }
