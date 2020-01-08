@@ -3,8 +3,8 @@
 #include "exceptions/Exception.hpp"
 #include "modules/ModuleHandle.hpp"
 #include "channel/ChannelManager.hpp"
-#include "modules/InternalModuleFactory.hpp"
 #include "modules/ModuleHandle.hpp"
+#include "modules/InternalModuleFactory.ipp"
 
 using elrond::runtime::RuntimeApp;
 using elrond::runtime::ChannelManager;
