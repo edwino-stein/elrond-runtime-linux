@@ -1,7 +1,7 @@
 #include "modules/VirtualGpio.hpp"
 
-using elrond::modules::BaseGpioModule;
-using elrond::interfaces::ConfigMapInterface;
+using elrond::module::BaseGpioModule;
+using elrond::interface::ConfigMap;
 using elrond::gpio::BaseGpioPin;
 using elrond::gpio::DOutPin;
 using elrond::gpio::ServoPin;
@@ -9,11 +9,11 @@ using elrond::gpio::PwmPin;
 
 VirtualGpio::~VirtualGpio(){}
 
-void VirtualGpio::onInit(ConfigMapInterface& cfg)
+void VirtualGpio::onInit(ConfigMap& cfg, elrond::LoopControl& lc)
 {
-    this->getLoopControl().allow = false;
-    this->getLoopControl().async = false;
-    this->getLoopControl().time = 0;
+    lc.enable = false;
+    lc.ownThread = false;
+    lc.interval = 0;
 }
 
 void VirtualGpio::attach(BaseGpioPin& pin)
@@ -24,13 +24,11 @@ void VirtualGpio::attach(BaseGpioPin& pin)
 
             pin.setReadHandle(
                 [](BaseGpioPin &pin)
-                {
-                    return ((DOutPin &) pin).value;
-                }
+                { return ((DOutPin &) pin).value; }
             );
 
             pin.setWriteHandle(
-                [](elrond::gpio::BaseGpioPin &pin, elrond::word &data)
+                [](elrond::gpio::BaseGpioPin &pin, const elrond::word data)
                 {
                     ((DOutPin &) pin).value = data;
                     std::cout << "#" << pin.getNumber() << " = " << (data > 0 ? "HIGH" : "LOW" ) << std::endl;
@@ -43,13 +41,11 @@ void VirtualGpio::attach(BaseGpioPin& pin)
 
             pin.setReadHandle(
                 [](BaseGpioPin &pin)
-                {
-                    return ((elrond::gpio::PwmPin &) pin).value;
-                }
+                { return ((elrond::gpio::PwmPin &) pin).value; }
             );
 
             pin.setWriteHandle(
-                [](BaseGpioPin &pin, elrond::word &data)
+                [](BaseGpioPin &pin, const elrond::word data)
                 {
                     ((elrond::gpio::PwmPin &) pin).value = data;
                     std::cout << "#" << pin.getNumber() << " = " << data << std::endl;
@@ -62,13 +58,11 @@ void VirtualGpio::attach(BaseGpioPin& pin)
 
             pin.setReadHandle(
                 [](BaseGpioPin &pin)
-                {
-                    return ((elrond::gpio::ServoPin &) pin).value;
-                }
+                { return ((elrond::gpio::ServoPin &) pin).value; }
             );
 
             pin.setWriteHandle(
-                [](BaseGpioPin &pin, elrond::word &data)
+                [](BaseGpioPin &pin, const elrond::word  data)
                 {
                     ((elrond::gpio::ServoPin &) pin).value = data;
                     std::cout << "#" << pin.getNumber() << " = " << elrond::map(data, LOW_VALUE, HIGH_VALUE, 0, 180)  << std::endl;
@@ -83,42 +77,9 @@ void VirtualGpio::attach(BaseGpioPin& pin)
     }
 }
 
-const char* VirtualGpio::_getInternalName()
-{
-    return "elrond::runtime::VirtualGpio";
-}
-
-const char* VirtualGpio::_infoMainClassName()
-{
-    return "VirtualGpio";
-}
-
-int VirtualGpio::_infoApiVersion()
-{
-    return ELROND_API_VERSION;
-}
-
-int VirtualGpio::_infoApiRevision()
-{
-    return ELROND_API_REVISION;
-}
-
-const char* VirtualGpio::_infoPrettyName()
-{
-    return "Virtual Gpio";
-}
-
-const char* VirtualGpio::_infoAuthorName()
-{
-    return "Edwino Stein";
-}
-
-const char* VirtualGpio::_infoAuthorEmail()
-{
-    return "edwino.stein@gmail.com";
-}
-
-const char* VirtualGpio::_infoVersion()
-{
-    return "0.1";
-}
+ELROND_DEFINE_INTER_MOD(
+    elrond::runtime::VirtualGpio,
+    "Virtual Gpio",
+    "Edwino Stein",
+    "edwino.stein@gmail.com"
+)

@@ -1,27 +1,30 @@
 #include "modules/ModuleHandle.hpp"
-
 #include "modules/ModuleFactory.hpp"
 
 using elrond::runtime::ModuleHandle;
-using elrond::interfaces::ModuleInterface;
+using elrond::interface::Module;
+using elrond::runtime::ModuleFactoryP;
 
-ModuleHandle::ModuleHandle(String name, ModuleFactoryP factory):
-_name(name), _factory(factory), name(_name), module(_module), factory(_factory)
-{
-    this->_module = this->factory->getInstance(this->_name);
-}
+ModuleHandle::ModuleHandle(elrond::String name, ModuleFactoryP factory):
+    _name(name),
+    _factory(factory),
+    name(_name),
+    instance(_instance),
+    factory(_factory)
+{ this->_instance = this->factory->newInstance(this->_name); }
 
 ModuleHandle::~ModuleHandle()
 {
-    if(this->_module != nullptr) this->factory->deleteInstance(this->_module);
+    if(this->_instance != nullptr) this->factory->deleteInstance(this->_instance);
+    this->_instance = nullptr;
 }
 
 void ModuleHandle::entryPoint(ModuleHandle* const mh)
 {
     while (mh->running){
         if(mh->started){
-            mh->module->loop();
-            elrond::delay(mh->module->getLoopControl().time);
+            mh->instance->loop();
+            elrond::delay(mh->lc.interval);
         }
     }
 }
@@ -30,27 +33,22 @@ void ModuleHandle::asyncRun()
 {
     if(this->running) return;
     this->running = true;
-    this->thread = Thread(ModuleHandle::entryPoint, this);
+    this->thread = std::thread(ModuleHandle::entryPoint, this);
 }
 
 void ModuleHandle::asyncStop(const bool join)
 {
-
     if(!this->running) return;
-
     this->running = false;
-    elrond::delay(this->module->getLoopControl().time);
-
+    elrond::delay(this->lc.interval);
     if(join && this->thread.joinable()) this->thread.join();
     else this->thread.detach();
 }
 
 void ModuleHandle::syncLoop()
 {
-
     if(!this->started) return;
-
     if(this->timout > elrond::millis()) return;
-    this->module->loop();
-    this->timout = elrond::millis() + this->module->getLoopControl().time;
+    this->instance->loop();
+    this->timout = elrond::millis() + this->lc.interval;
 }

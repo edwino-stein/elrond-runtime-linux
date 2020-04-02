@@ -6,23 +6,25 @@
 
     using Json = nlohmann::json;
 
-    elrond::runtime::ModuleInfo saInfo = {
+    elrond::runtime::ModuleInfo appInfo = {
         .mainClass = "RuntimeApp",
         .apiVer = ELROND_API_VERSION,
-        .apiRevision = ELROND_API_REVISION,
         .prettyName = "Elrond Runtime for Linux",
         .authorName = "Edwino Stein",
         .authorEmail = "edwino.stein@gmail.com",
-        .version = std::to_string(ELROND_API_VERSION) + "." + std::to_string(ELROND_API_REVISION) + "-alpha"
+        .version = ELROND_API_VERSION_STR
     };
 
-    void loadApplication(int argc, char const* argv[], elrond::runtime::RuntimeApp& app);
-    void stopApplication(elrond::runtime::RuntimeApp& app, int code);
-    void pushStandaloneModules(elrond::runtime::ModulesFactoriesV& factories);
+    void loadApplication(elrond::runtime::RuntimeApp& app,
+                         const int argc,
+                         char const* argv[]);
+
+    void stopApplication(elrond::runtime::RuntimeApp& app, const int code);
+    elrond::runtime::ModulesFactoriesV newStandaloneModulesFactorories();
     void parseModules(elrond::runtime::RuntimeApp& app, Json& cfg);
     void initModules(elrond::runtime::RuntimeApp& app, Json& cfg);
     void parseChmgrs(elrond::runtime::RuntimeApp& app, Json &cfg);
-    void readJsonFromFile(String file, Json& json);
+    void readJsonFromFile(elrond::String file, Json& json);
     int main(int argc, char const* argv[]);
 
 #endif

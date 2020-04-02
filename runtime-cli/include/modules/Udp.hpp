@@ -4,7 +4,7 @@
     #include "elrond-runtime.hpp"
     #include <arpa/inet.h>
 
-    class Udp : public elrond::modules::BaseTransportModule {
+    class Udp : public elrond::module::BaseTransportModule {
 
         protected:
 
@@ -12,7 +12,7 @@
 
                 protected:
 
-                    String _host = "";
+                    elrond::String _host = "";
                     int _port = -1;
 
                     struct sockaddr_in serverAddr;
@@ -21,12 +21,12 @@
 
                 public:
 
-                    String const& host;
+                    elrond::String const& host;
                     int const& port;
 
                     UdpSocket();
 
-                    void init(const int port, String host);
+                    void init(const int port, elrond::String host);
 
                     void stop();
 
@@ -36,7 +36,7 @@
                     bool isServer() const;
                     bool isRunnig() const;
 
-                    static bool isValidIpv4(String ip);
+                    static bool isValidIpv4(elrond::String ip);
                     static bool isValidPort(const int port);
             };
 
@@ -47,22 +47,20 @@
 
             virtual ~Udp();
 
-            void onInit(elrond::interfaces::ConfigMapInterface& cfg) override;
+            void onInit(elrond::interface::ConfigMap& cfg, elrond::LoopControl& lc) override;
             void onStart() override;
             void onStop() override;
             void loop() override;
             void send(elrond::byte data[], const elrond::sizeT length) override;
             void setChannelManager(elrond::channel::BaseChannelManager* cm) override;
 
-            static const char* _getInternalName();
-            static const char* _infoMainClassName();
-            static int _infoApiVersion();
-            static int _infoApiRevision();
-            static const char* _infoPrettyName();
-            static const char* _infoAuthorName();
-            static const char* _infoAuthorEmail();
-            static const char* _infoVersion();
+            ELROND_DEFINE_INTER_MOD_DEF_FUNCS;
     };
 
+    namespace elrond {
+        namespace runtime {
+            using Udp = Udp;
+        }
+    }
 
 #endif

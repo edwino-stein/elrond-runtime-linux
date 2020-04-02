@@ -7,14 +7,10 @@
         namespace runtime {
 
             class RxChCollection {
-
                 protected:
-                    Vector<elrond::channel::RxChannel*> channels;
+                    std::vector<elrond::channel::RxChannel*> channels;
 
                 public:
-
-                    RxChCollection();
-
                     void push(elrond::channel::RxChannel* rx);
                     void trigger(const elrond::word data);
             };

@@ -10,19 +10,19 @@
 
                 protected:
 
-                    String _name;
+                    elrond::String _name;
                     elrond::runtime::ModuleInfo _info;
 
                 public:
 
                     elrond::runtime::ModuleInfo const& info;
 
-                    ModuleFactory(String name);
+                    ModuleFactory(elrond::String name);
                     virtual ~ModuleFactory();
 
-                    virtual elrond::interfaces::ModuleInterface* getInstance(String const& instName)=0;
-                    virtual void deleteInstance(elrond::interfaces::ModuleInterface* mod)=0;
-                    virtual bool match(String const& name) const;
+                    virtual elrond::interface::Module* newInstance(String const& instName)=0;
+                    virtual void deleteInstance(elrond::interface::Module* inst)=0;
+                    virtual bool match(elrond::String const& name) const;
             };
         }
     }

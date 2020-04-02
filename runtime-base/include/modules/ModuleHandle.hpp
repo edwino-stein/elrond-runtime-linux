@@ -10,24 +10,25 @@
 
                 protected:
 
-                    String _name;
+                    elrond::String _name;
                     ModuleFactoryP _factory;
-                    elrond::interfaces::ModuleInterface* _module = nullptr;
+                    elrond::interface::Module* _instance = nullptr;
 
                     bool running = false;
-                    Thread thread;
+                    std::thread thread;
                     unsigned long timout = 0;
 
                     static void entryPoint(ModuleHandle* const mh);
 
                 public:
 
-                    String const& name;
-                    elrond::interfaces::ModuleInterface* const& module;
+                    elrond::String const& name;
+                    elrond::interface::Module* const& instance;
                     ModuleFactoryP const& factory;
                     bool started = false;
+                    elrond::LoopControl lc;
 
-                    ModuleHandle(String name, ModuleFactoryP factory);
+                    ModuleHandle(String name, elrond::runtime::ModuleFactoryP factory);
                     virtual ~ModuleHandle();
 
                     void asyncRun();

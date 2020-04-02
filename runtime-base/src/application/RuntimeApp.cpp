@@ -3,7 +3,6 @@
 #include "exceptions/Exception.hpp"
 #include "modules/ModuleHandle.hpp"
 #include "channel/ChannelManager.hpp"
-#include "modules/ModuleHandle.hpp"
 #include "modules/InternalModuleFactory.ipp"
 
 using elrond::runtime::RuntimeApp;
@@ -18,35 +17,34 @@ using elrond::runtime::ModuleInfo;
 using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::Exception;
 
-using elrond::interfaces::RuntimeInterface;
-using elrond::interfaces::ModuleInterface;
-using elrond::interfaces::DebugOutInterface;
-using elrond::interfaces::ConfigMapInterface;
-using elrond::modules::BaseGpioModule;
-using elrond::modules::BaseInputDriverModule;
+using elrond::interface::Runtime;
+using elrond::interface::DebugOut;
+using elrond::interface::ConfigMap;
+using elrond::module::BaseGpioModule;
+using elrond::module::BaseInputDriverModule;
+using elrond::module::BaseTransportModule;
 using elrond::channel::BaseChannelManager;
 
-RuntimeInterface* elrond::__rtInstance__ = nullptr;
+Runtime* ELROND_MOD_APP_VAR = nullptr;
 
-RuntimeApp::RuntimeApp(DebugOutInterface& dout) : _dout(dout)
-{
-    elrond::__rtInstance__ = this;
-}
-
+RuntimeApp::RuntimeApp(DebugOut& dout): _dout(dout){ ELROND_MOD_APP_VAR = this; }
 RuntimeApp::~RuntimeApp(){}
 
-ModuleInfo const& RuntimeApp::defineModule(String name, String type, ModulesFactoriesV& factories)
-{
+ModuleInfo const& RuntimeApp::defineModule(
+    elrond::String name,
+    elrond::String type,
+    ModulesFactoriesV& factories
+){
     ModuleFactoryP fac = RuntimeApp::findFactory(type, factories, this);
-    this->modules.push_back(std::make_shared<ModuleHandle>(name, fac));
+    this->instances.push_back(std::make_shared<ModuleHandle>(name, fac));
     return fac->info;
 }
 
-void RuntimeApp::initModule(String name, ConfigMapInterface &cm) const
+void RuntimeApp::initModule(elrond::String name, ConfigMap& cm) const
 {
     try{
         ModuleHandleP mh = this->findModule(name);
-        mh->module->onInit(cm);
+        mh->instance->onInit(cm, mh->lc);
     }
     catch(Exception &e){
         throw Exception(
@@ -56,15 +54,15 @@ void RuntimeApp::initModule(String name, ConfigMapInterface &cm) const
     }
 }
 
-void RuntimeApp::startModules(){
-
+void RuntimeApp::startModules()
+{
     std::for_each(
-        this->modules.begin(),
-        this->modules.end(),
-        [](ModuleHandleP mh){
-
-            try{
-                mh->module->onStart();
+        this->instances.begin(),
+        this->instances.end(),
+        [](ModuleHandleP mh)
+        {
+            try {
+                mh->instance->onStart();
             }
             catch(Exception &e){
                 throw Exception(
@@ -72,22 +70,22 @@ void RuntimeApp::startModules(){
                     e
                 );
             }
-
             mh->started = true;
         }
     );
 }
 
-void RuntimeApp::stopModules(){
-
+void RuntimeApp::stopModules()
+{
     std::for_each(
-        this->modules.begin(),
-        this->modules.end(),
-        [](ModuleHandleP mh){
+        this->instances.begin(),
+        this->instances.end(),
+        [](ModuleHandleP mh)
+        {
             try{
                 if(mh->started){
                     mh->started = false;
-                    mh->module->onStop();
+                    mh->instance->onStop();
                 }
             }
             catch(Exception &e){
@@ -104,21 +102,20 @@ void RuntimeApp::stopModules(){
     );
 }
 
-ModuleHandleP RuntimeApp::findModule(String name) const {
-
+ModuleHandleP RuntimeApp::findModule(elrond::String name) const
+{
     auto it = std::find_if(
-        this->modules.begin(),
-        this->modules.end(),
+        this->instances.begin(),
+        this->instances.end(),
         [&name](ModuleHandleP mh){ return mh->name == name; }
     );
 
-    if(it != this->modules.end()) return *it;
+    if(it != this->instances.end()) return *it;
     throw Exception("No such module instance");
 }
 
 void RuntimeApp::start()
 {
-
     std::for_each(
         this->chmgrs.begin(),
         this->chmgrs.end(),
@@ -128,19 +125,18 @@ void RuntimeApp::start()
     this->startModules();
 }
 
-void RuntimeApp::loop(std::function<bool(void)> continueHandle)
+void RuntimeApp::loop(ELROND_LAMBDA_FUNC(bool, void) continueHandle)
 {
-
-    Vector<ModuleHandleP> syncLoopMods;
+    std::vector<ModuleHandleP> syncLoopMods;
 
     std::for_each(
-        this->modules.begin(),
-        this->modules.end(),
+        this->instances.begin(),
+        this->instances.end(),
         [&syncLoopMods](ModuleHandleP mh){
 
-            if(!mh->module->getLoopControl().allow) return;
+            if(!mh->lc.enable) return;
 
-            if(mh->module->getLoopControl().async){
+            if(mh->lc.ownThread){
                 mh->asyncRun();
                 return;
             }
@@ -159,8 +155,8 @@ void RuntimeApp::loop(std::function<bool(void)> continueHandle)
     }
 }
 
-void RuntimeApp::stop(bool force){
-
+void RuntimeApp::stop(const bool force)
+{
     this->stopModules();
 
     std::for_each(
@@ -170,21 +166,24 @@ void RuntimeApp::stop(bool force){
     );
 
     std::for_each(
-        this->modules.begin(),
-        this->modules.end(),
+        this->instances.begin(),
+        this->instances.end(),
         [&force](ModuleHandleP mh){ mh->asyncStop(!force); }
     );
 }
 
-ChannelManagerP RuntimeApp::defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps)
-{
-
+ChannelManagerP RuntimeApp::defineChannelManager(
+    elrond::String transport,
+    const elrond::sizeT tx,
+    const elrond::sizeT rx,
+    const elrond::sizeT fps
+){
     ModuleHandleP mod = this->findModule(transport);
-    if(mod->module->getType() != elrond::ModuleType::TRANSPORT)
+    if(mod->instance->getType() != elrond::ModuleType::TRANSPORT)
         throw Exception("Instance is not a transport module");
 
     ChannelManagerP chmgr = std::make_shared<ChannelManager>(
-        (elrond::modules::BaseTransportModule &) *(mod->module),
+        (BaseTransportModule &) *(mod->instance),
         tx,
         rx,
         fps
@@ -192,20 +191,20 @@ ChannelManagerP RuntimeApp::defineChannelManager(String transport, const elrond:
 
     chmgr->init();
     this->chmgrs.push_back(chmgr);
-
     return chmgr;
 }
 
 BaseGpioModule& RuntimeApp::getGpioService() const
 {
-
     auto it = std::find_if(
-        this->modules.begin(),
-        this->modules.end(),
-        [](ModuleHandleP mh){ return mh->module->getType() == elrond::ModuleType::GPIO; }
+        this->instances.begin(),
+        this->instances.end(),
+        [](ModuleHandleP mh)
+        { return mh->instance->getType() == elrond::ModuleType::GPIO; }
     );
 
-    if(it != this->modules.end()) return *((BaseGpioModule*) (*it)->module);
+    if(it != this->instances.end())
+        return *((BaseGpioModule*) (*it)->instance);
 
     throw Exception(
         "Invalid gpio service",
@@ -215,18 +214,19 @@ BaseGpioModule& RuntimeApp::getGpioService() const
 
 BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const
 {
-
     elrond::sizeT i = 0;
     auto it = std::find_if(
-        this->modules.begin(),
-        this->modules.end(),
-        [&id, &i](ModuleHandleP mod){
-            if(mod->module->getType() != elrond::ModuleType::INPUT) return false;
+        this->instances.begin(),
+        this->instances.end(),
+        [&id, &i](ModuleHandleP mod)
+        {
+            if(mod->instance->getType() != elrond::ModuleType::INPUT) return false;
             return (i++) == id;
         }
     );
 
-    if(it != this->modules.end()) return (BaseInputDriverModule&) *((*it)->module);
+    if(it != this->instances.end())
+        return (BaseInputDriverModule&) *((*it)->instance);
 
     throw Exception(
         "Invalid input service",
@@ -234,19 +234,12 @@ BaseInputDriverModule& RuntimeApp::getInputService(const elrond::sizeT id) const
     );
 }
 
-const DebugOutInterface& RuntimeApp::dout() const
-{
-    return (DebugOutInterface&) this->_dout;
-}
+const DebugOut& RuntimeApp::dout() const { return (DebugOut&) this->_dout; }
+void RuntimeApp::onError(const char* error){ throw Exception(error); }
+void RuntimeApp::onError(elrond::String error){ throw Exception(error); }
 
-void RuntimeApp::onError(const char* error)
+BaseChannelManager& RuntimeApp::getChannelManager(const elrond::sizeT id) const
 {
-    throw Exception(error);
-}
-
-BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const
-{
-
     if(id >= this->chmgrs.size()){
         throw Exception(
             "Invalid channel manager",
@@ -254,13 +247,14 @@ BaseChannelManager &RuntimeApp::getChannelManager(const elrond::sizeT id) const
         );
     }
 
-    return *this->chmgrs[id];
+    return *(this->chmgrs[id]);
 }
 
-
-ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactoriesV &factories, RuntimeInterface *app)
-{
-
+ModuleFactoryP RuntimeApp::findFactory(
+    elrond::String& name,
+    ModulesFactoriesV& factories,
+    Runtime* app
+){
     auto it = std::find_if(
         factories.begin(),
         factories.end(),
@@ -268,50 +262,19 @@ ModuleFactoryP RuntimeApp::findFactory(String name, ModulesFactoriesV &factories
     );
 
     if(it != factories.end()) return *it;
-
     throw Exception("No module instance`s factory defined");
 }
 
 ModulesFactoriesV RuntimeApp::newModulesFactories()
 {
-
-    ModulesFactoriesV factories;
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::Example>>(
-            elrond::Example::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::Loopback>>(
-            elrond::Loopback::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::InputToChannel>>(
-            elrond::InputToChannel::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::DigitalLed>>(
-            elrond::DigitalLed::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::AnalogLed>>(
-            elrond::AnalogLed::_getInternalName()
-        )
-    );
-
-    factories.push_back(
-        std::make_shared<InternalModuleFactory<elrond::Servo>>(
-            elrond::Servo::_getInternalName()
-        )
-    );
-
+    ModulesFactoriesV factories = {
+        std::make_shared<InternalModuleFactory<elrond::Example>>(),
+        std::make_shared<InternalModuleFactory<elrond::Loopback>>(),
+        std::make_shared<InternalModuleFactory<elrond::InputToChannel>>(),
+        std::make_shared<InternalModuleFactory<elrond::ChannelToChannel>>(),
+        std::make_shared<InternalModuleFactory<elrond::DigitalLed>>(),
+        std::make_shared<InternalModuleFactory<elrond::AnalogLed>>(),
+        std::make_shared<InternalModuleFactory<elrond::Servo>>()
+    };
     return std::move(factories);
 }

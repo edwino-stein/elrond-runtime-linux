@@ -12,11 +12,11 @@
 
                 public:
 
-                    InternalModuleFactory(String name);
+                    InternalModuleFactory();
                     virtual ~InternalModuleFactory();
 
-                    elrond::interfaces::ModuleInterface* getInstance(String const& instName) override;
-                    void deleteInstance(elrond::interfaces::ModuleInterface* mod) override;
+                    elrond::interface::Module* newInstance(elrond::String const& instName) override;
+                    void deleteInstance(elrond::interface::Module* mod) override;
             };
         }
     }

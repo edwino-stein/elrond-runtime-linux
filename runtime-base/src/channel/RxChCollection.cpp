@@ -3,12 +3,7 @@
 using elrond::runtime::RxChCollection;
 using elrond::channel::RxChannel;
 
-RxChCollection::RxChCollection(){}
-
-void RxChCollection::push(RxChannel* rx)
-{
-    this->channels.push_back(rx);
-}
+void RxChCollection::push(RxChannel* rx){ this->channels.push_back(rx); }
 
 void RxChCollection::trigger(const elrond::word data)
 {

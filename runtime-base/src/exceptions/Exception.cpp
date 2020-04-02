@@ -11,10 +11,10 @@ _prev(nullptr), _message(e._message), message(_message){
     if(e._prev != nullptr) this->_prev.reset(new Exception(*e._prev));
 }
 
-Exception::Exception(String message, const Exception &prev):
+Exception::Exception(elrond::String message, const Exception &prev):
 _prev(new Exception(prev)), _message(message), message(_message){}
 
-Exception::Exception(String message):
+Exception::Exception(elrond::String message):
 _prev(nullptr), _message(message), message(_message){}
 
 Exception::Exception(const std::exception &e):
@@ -30,7 +30,7 @@ void Exception::what(std::ostream &oss) const {
     Exception::dumpStack(oss, *this, i, le);
 }
 
-String Exception::what() const {
+elrond::String Exception::what() const {
     std::ostringstream oss;
     this->what(oss);
     return oss.str();

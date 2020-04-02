@@ -1,7 +1,6 @@
 #include "JsonConfigMap.hpp"
 
-JsonConfigMap::JsonConfigMap(nlohmann::json const& data, std::vector<String> &stringPool):
-data(data), stringPool(stringPool){}
+JsonConfigMap::JsonConfigMap(nlohmann::json const& data): data(data){}
 
 int JsonConfigMap::asInt(const char* key) const
 {
@@ -38,11 +37,16 @@ const char* JsonConfigMap::asString(const char* key) const
 {
     nlohmann::json v = this->data[key];
     auto s = this->decodeString(v);
-    this->stringPool.push_back(s);
+
+    StringPoolT& stringPool = ((JsonConfigMap*) this)->getStringPool();
+    stringPool.push_back(s);
+
     return this->stringPool.back().c_str();
 }
 
-int JsonConfigMap::asString(const char* key, char value[], const elrond::sizeT len) const
+int JsonConfigMap::asString(const char* key,
+                            char value[],
+                            const elrond::sizeT len) const
 {
     nlohmann::json v = this->data[key];
     auto s = this->decodeString(v);
@@ -50,34 +54,22 @@ int JsonConfigMap::asString(const char* key, char value[], const elrond::sizeT l
 }
 
 bool JsonConfigMap::isInt(const char* key) const
-{
-    return this->data[key].is_number_integer();
-}
+{ return this->data[key].is_number_integer(); }
 
 bool JsonConfigMap::isLong(const char* key) const
-{
-    return this->data[key].is_number_integer();
-}
+{ return this->data[key].is_number_integer(); }
 
 bool JsonConfigMap::isDouble(const char* key) const
-{
-    return this->data[key].is_number_float();
-}
+{ return this->data[key].is_number_float(); }
 
 bool JsonConfigMap::isBool(const char* key) const
-{
-    return this->data[key].is_boolean();
-}
+{ return this->data[key].is_boolean(); }
 
 bool JsonConfigMap::isChar(const char* key) const
-{
-    return this->data[key].is_string();
-}
+{ return this->data[key].is_string(); }
 
 bool JsonConfigMap::isString(const char* key) const
-{
-    return this->data[key].is_string();
-}
+{ return this->data[key].is_string(); }
 
 bool JsonConfigMap::isNull(const char* key) const
 {
@@ -93,9 +85,7 @@ long JsonConfigMap::decodeInt(nlohmann::json const& v) const
         auto s = this->decodeString(v);
         if(s.size() == 0) return 0;
         if(s.size() == 1) return s[0];
-        try {
-            return std::stoi(s);
-        }
+        try { return std::stoi(s); }
         catch(std::exception const& e){}
     }
 
@@ -110,9 +100,7 @@ double JsonConfigMap::decodeDouble(nlohmann::json const& v) const
         auto s = this->decodeString(v);
         if(s.size() == 0) return 0;
         if(s.size() == 1) return s[0];
-        try {
-            return std::stof(s);
-        }
+        try { return std::stof(s); }
         catch(std::exception const& e){}
     }
 
@@ -133,11 +121,14 @@ bool JsonConfigMap::decodeBool(nlohmann::json const& v) const
     return false;
 }
 
-String JsonConfigMap::decodeString(nlohmann::json const& v) const
+elrond::String JsonConfigMap::decodeString(nlohmann::json const& v) const
 {
-    if(v.is_string()) return v.get<String>();
+    if(v.is_string()) return v.get<elrond::String>();
     if(v.is_number_integer()) return std::to_string(this->decodeInt(v));
     if(v.is_number_float()) return std::to_string(this->decodeDouble(v));
     if(v.is_boolean()) return this->decodeBool(v) ? "true" : "false";
     return "";
 }
+
+JsonConfigMap::StringPoolT& JsonConfigMap::getStringPool()
+{ return this->stringPool; }

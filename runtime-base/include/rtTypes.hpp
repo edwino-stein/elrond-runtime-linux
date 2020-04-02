@@ -3,20 +3,28 @@
 
     #include "elrond.hpp"
 
+    #ifndef GENERIC_STD_PLATFORM
+        #error "The Elrond Test Library requires the GENERIC_STD_PLATFORM macro"
+    #endif
+
+    #ifndef ELROND_WITH_LAMBDA_TYPE
+        #error "The Elrond Test Library requires the ELROND_WITH_LAMBDA_TYPE macro"
+    #endif
+
+    #ifndef ELROND_WITH_STR_TYPE
+        #error "The Elrond Test Library requires the ELROND_WITH_STR_TYPE macro"
+    #endif
+
+    #ifndef ELROND_WITH_MODULES_INFO
+        #error "The Elrond Test Library requires the ELROND_WITH_MODULES_INFO macro"
+    #endif
+
     #include <vector>
-    #include <string>
     #include <memory>
-    #include <functional>
     #include <algorithm>
     #include <thread>
     #include <mutex>
-
-    // STD types
-    using String = std::string;
-    template <class T> using Vector = std::vector<T>;
-    using Thread = std::thread;
-    using Mutex = std::mutex;
-    using MtxLockGuard = std::lock_guard<std::mutex>;
+    #include <sstream>
 
     namespace elrond {
         namespace runtime {
@@ -37,24 +45,27 @@
             template<class T> class InternalModuleFactory;
 
             using ModuleFactoryP = std::shared_ptr<ModuleFactory>;
-            using ModulesFactoriesV = Vector<ModuleFactoryP>;
+            using ModulesFactoriesV = std::vector<ModuleFactoryP>;
             using ModuleHandleP = std::shared_ptr<ModuleHandle>;
 
             class Exception;
 
             struct ModuleInfo {
 
-                String mainClass;
-                int apiVer;
-                int apiRevision;
+                elrond::String mainClass;
+                elrond::uInt32 apiVer;
 
-                String prettyName;
-                String authorName;
-                String authorEmail;
-                String version;
+                elrond::String prettyName;
+                elrond::String authorName;
+                elrond::String authorEmail;
+                elrond::String version;
 
-                String about() const;
-                String name() const;
+                elrond::String about() const;
+                elrond::String name() const;
+
+                unsigned int majorVer() const;
+                unsigned int minorVer() const;
+                unsigned int pathVer() const;
             };
         }
     }

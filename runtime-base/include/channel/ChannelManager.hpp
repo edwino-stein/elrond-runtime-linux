@@ -2,6 +2,7 @@
     #define _ELROND_RUNTIME_CHANNEL_MANAGER_HPP
 
     #include "rtTypes.hpp"
+    #include "channel/RxChCollection.hpp"
 
     namespace elrond {
         namespace runtime {
@@ -15,23 +16,31 @@
                     std::unique_ptr<elrond::runtime::RxChCollectionP[]> rxChannels;
 
                     std::unique_ptr<elrond::byte[]> txBuffer;
-                    Mutex txBufferMtx;
+                    std::mutex txBufferMtx;
 
                     void rxTrigger(const elrond::sizeT ch, elrond::word data) override;
                     elrond::byte* getTxBuffer() const override;
 
                     const int txFps;
                     bool running = false;
-                    Thread thread;
+                    std::thread thread;
 
                     static void entryPoint(ChannelManager* cm);
 
                 public:
 
-                    ChannelManager(elrond::modules::BaseTransportModule& transport, const elrond::sizeT totalTx, const elrond::sizeT totalRx, const unsigned int txFps);
-                    ~ChannelManager();
+                    ChannelManager(
+                        elrond::module::BaseTransportModule& transport,
+                        const elrond::sizeT totalTx,
+                        const elrond::sizeT totalRx,
+                        const unsigned int txFps
+                    );
 
-                    void addRxListener(const elrond::sizeT ch, elrond::channel::RxChannel* rx) override;
+                    void addRxListener(
+                        const elrond::sizeT ch,
+                        elrond::channel::RxChannel* rx
+                    ) override;
+
                     void txTrigger(const elrond::sizeT ch, elrond::word data) override;
                     bool txSync(const bool force) override;
 

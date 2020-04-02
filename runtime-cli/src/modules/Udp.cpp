@@ -5,13 +5,12 @@
 #include <unistd.h>
 
 using elrond::runtime::Exception;
-using elrond::interfaces::ConfigMapInterface;
+using elrond::interface::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
-Udp::UdpSocket::UdpSocket():
-host(_host), port(_port){}
+Udp::UdpSocket::UdpSocket(): host(_host), port(_port){}
 
-void Udp::UdpSocket::init(const int port, String host)
+void Udp::UdpSocket::init(const int port, elrond::String host)
 {
 
     if(this->isRunnig()) return;
@@ -97,27 +96,21 @@ bool Udp::UdpSocket::send(elrond::byte data[], const elrond::sizeT len)
 bool Udp::UdpSocket::isServer() const { return this->host == ""; }
 bool Udp::UdpSocket::isRunnig() const { return this->sck != -1; }
 
-bool Udp::UdpSocket::isValidIpv4(String ip)
-{
-    return ::inet_addr(ip.c_str()) != (in_addr_t)(-1);
-}
+bool Udp::UdpSocket::isValidIpv4(elrond::String ip)
+{ return ::inet_addr(ip.c_str()) != (in_addr_t)(-1); }
 
 bool Udp::UdpSocket::isValidPort(const int port)
-{
-    return port > 0 && port < 65535;
-}
+{ return port > 0 && port < 65535; }
 
 Udp::~Udp(){}
 
-void Udp::onInit(ConfigMapInterface& cfg)
+void Udp::onInit(ConfigMap& cfg, elrond::LoopControl& lc)
 {
-
     if(!cfg.isInt("port")) elrond::error("Invalid or missing key \"port\".");
     int port = cfg.asInt("port");
 
-    String host = "";
-    if(cfg.isString("host"))
-        host = cfg.asString("host");
+    elrond::String host = "";
+    if(cfg.isString("host")) host = cfg.asString("host");
 
     try{
         this->socket.init(port, host);
@@ -126,9 +119,9 @@ void Udp::onInit(ConfigMapInterface& cfg)
         throw Exception("Unable to initialize the UDP socket", e);
     }
 
-    this->getLoopControl().allow = true;
-    this->getLoopControl().async = true;
-    this->getLoopControl().time = 10;
+    lc.enable = true;
+    lc.ownThread = true;
+    lc.interval = 10;
 }
 
 void Udp::onStart()
@@ -150,7 +143,7 @@ void Udp::onStart()
 void Udp::onStop()
 {
     this->socket.stop();
-    elrond::delay(this->getLoopControl().time * 5);
+    elrond::delay(10 * 5);
 }
 
 void Udp::loop()
@@ -164,53 +157,15 @@ void Udp::loop()
     this->cm->onReceive(buffer, length);
 }
 
-
 void Udp::send(elrond::byte data[], const elrond::sizeT length)
-{
-    this->socket.send(data, length);
-}
+{ this->socket.send(data, length); }
 
 void Udp::setChannelManager(BaseChannelManager* cm)
-{
-    if(this->cm == nullptr) this->cm = cm;
-}
+{ if(this->cm == nullptr) this->cm = cm; }
 
-const char* Udp::_getInternalName()
-{
-    return "elrond::runtime::Udp";
-}
-
-const char* Udp::_infoMainClassName()
-{
-    return "Udp";
-}
-
-int Udp::_infoApiVersion()
-{
-    return ELROND_API_VERSION;
-}
-
-int Udp::_infoApiRevision()
-{
-    return ELROND_API_REVISION;
-}
-
-const char* Udp::_infoPrettyName()
-{
-    return "UDP Transport";
-}
-
-const char* Udp::_infoAuthorName()
-{
-    return "Edwino Stein";
-}
-
-const char* Udp::_infoAuthorEmail()
-{
-    return "edwino.stein@gmail.com";
-}
-
-const char* Udp::_infoVersion()
-{
-    return "1.0";
-}
+ELROND_DEFINE_INTER_MOD(
+    elrond::runtime::Udp,
+    "UDP Transport",
+    "Edwino Stein",
+    "edwino.stein@gmail.com"
+)

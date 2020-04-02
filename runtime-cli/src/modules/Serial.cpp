@@ -3,20 +3,17 @@
 #include <cstring>
 #include <fcntl.h>
 #include <errno.h>
-#include <termios.h>
 #include <unistd.h>
 
-using elrond::runtime::Exception;
-using elrond::interfaces::ConfigMapInterface;
+using elrond::interface::ConfigMap;
 using elrond::channel::BaseChannelManager;
 
 Serial::~Serial(){}
 
-void Serial::onInit(ConfigMapInterface& cfg)
+void Serial::onInit(ConfigMap& cfg, elrond::LoopControl& lc)
 {
-
     if(!cfg.isString("path")) elrond::error("Invalid or missing key \"path\".");
-    String path(cfg.asString("path"));
+    elrond::String path = cfg.asString("path");
 
     if(!cfg.isInt("speed")) elrond::error("Invalid or missing key \"speed\".");
     speed_t speed = Serial::getSpeed(cfg.asInt("speed"));
@@ -52,24 +49,22 @@ void Serial::onInit(ConfigMapInterface& cfg)
     cfsetispeed(&(this->tty), speed);
     cfsetospeed(&(this->tty), speed);
 
-    this->getLoopControl().allow = true;
-    this->getLoopControl().async = true;
-    this->getLoopControl().time = 10;
+    lc.enable = true;
+    lc.ownThread = true;
+    lc.interval = 10;
 }
 
 void Serial::onStart()
 {
-    if(tcsetattr(this->port, TCSANOW, &(this->tty)) != 0) elrond::error(strerror(errno));
+    if(tcsetattr(this->port, TCSANOW, &(this->tty)) != 0)
+        elrond::error(strerror(errno));
 }
 
 void Serial::onStop()
-{
-    close(this->port);
-}
+{ close(this->port); }
 
 void Serial::loop()
 {
-
     if(this->cm == nullptr) return;
 
     const elrond::sizeT length = this->cm->getRxBufferSize();
@@ -82,14 +77,10 @@ void Serial::loop()
 }
 
 void Serial::send(elrond::byte data[], const elrond::sizeT length)
-{
-    write(this->port, data, length);
-}
+{ write(this->port, data, length); }
 
 void Serial::setChannelManager(BaseChannelManager* cm)
-{
-    if(this->cm == nullptr) this->cm = cm;
-}
+{ if(this->cm == nullptr) this->cm = cm; }
 
 speed_t Serial::getSpeed(unsigned int speed)
 {
@@ -117,42 +108,9 @@ speed_t Serial::getSpeed(unsigned int speed)
     return B0;
 }
 
-const char* Serial::_getInternalName()
-{
-    return "elrond::runtime::Serial";
-}
-
-const char* Serial::_infoMainClassName()
-{
-    return "Serial";
-}
-
-int Serial::_infoApiVersion()
-{
-    return ELROND_API_VERSION;
-}
-
-int Serial::_infoApiRevision()
-{
-    return ELROND_API_REVISION;
-}
-
-const char* Serial::_infoPrettyName()
-{
-    return "Serial/UART Transport";
-}
-
-const char* Serial::_infoAuthorName()
-{
-    return "Edwino Stein";
-}
-
-const char* Serial::_infoAuthorEmail()
-{
-    return "edwino.stein@gmail.com";
-}
-
-const char* Serial::_infoVersion()
-{
-    return "0.1";
-}
+ELROND_DEFINE_INTER_MOD(
+    elrond::runtime::Serial,
+    "Serial/UART Transport",
+    "Edwino Stein",
+    "edwino.stein@gmail.com"
+)

@@ -13,7 +13,7 @@
                 protected:
 
                     std::unique_ptr<Exception> _prev;
-                    String _message;
+                    elrond::String _message;
 
                     Exception();
 
@@ -21,15 +21,15 @@
 
                 public:
 
-                    String const &message;
+                    elrond::String const &message;
 
                     Exception(const Exception &e);
-                    Exception(String message, const Exception &prev);
-                    Exception(String message);
+                    Exception(elrond::String message, const Exception &prev);
+                    Exception(elrond::String message);
                     Exception(const std::exception &e);
 
                     virtual ~Exception();
-                    virtual String what() const;
+                    virtual elrond::String what() const;
                     virtual void what(std::ostream &oss) const;
             };
         }

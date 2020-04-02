@@ -7,32 +7,27 @@
         namespace runtime {
 
             template<class T>
-            InternalModuleFactory<T>::InternalModuleFactory(String name):
-            ModuleFactory(name)
+            InternalModuleFactory<T>::InternalModuleFactory():
+            ModuleFactory(T::ELROND_MOD_MAIN_CLASS_FUNC_N())
             {
-                this->_info.mainClass = T::_infoMainClassName();
-                this->_info.apiVer = T::_infoApiVersion();
-                this->_info.apiRevision = T::_infoApiRevision();
-                this->_info.prettyName = T::_infoPrettyName();
-                this->_info.authorName = T::_infoAuthorName();
-                this->_info.authorEmail = T::_infoAuthorEmail();
-                this->_info.version = T::_infoVersion();
+                this->_info.mainClass = T::ELROND_MOD_MAIN_CLASS_FUNC_N();
+                this->_info.apiVer = T::ELROND_MOD_API_VER_FUNC_N();
+                this->_info.prettyName = T::ELROND_MOD_PRETTY_NAME_FUNC_N();
+                this->_info.authorName = T::ELROND_MOD_AUTHOR_NAME_FUNC_N();
+                this->_info.authorEmail = T::ELROND_MOD_AUTHOR_EMAIL_FUNC_N();
+                this->_info.version = T::ELROND_MOD_VERSION_FUNC_N();
             }
 
             template<class T>
             InternalModuleFactory<T>::~InternalModuleFactory(){}
 
             template<class T>
-            elrond::interfaces::ModuleInterface* InternalModuleFactory<T>::getInstance(String const& instName)
-            {
-                return new T();
-            }
+            elrond::interface::Module* InternalModuleFactory<T>::newInstance(elrond::String const& instName)
+            { return new T(); }
 
             template<class T>
-            void InternalModuleFactory<T>::deleteInstance(elrond::interfaces::ModuleInterface* mod)
-            {
-                delete mod;
-            }
+            void InternalModuleFactory<T>::deleteInstance(elrond::interface::Module* mod)
+            { delete mod; }
         }
     }
 

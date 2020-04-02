@@ -6,38 +6,59 @@
     namespace elrond {
         namespace runtime {
 
-            class RuntimeApp : public elrond::interfaces::RuntimeInterface {
+            class RuntimeApp : public elrond::interface::Runtime {
 
                 protected:
 
-                    elrond::interfaces::DebugOutInterface &_dout;
-                    Vector<elrond::runtime::ModuleHandleP> modules;
-                    Vector<elrond::runtime::ChannelManagerP> chmgrs;
+                    elrond::interface::DebugOut &_dout;
 
-                    ModuleHandleP findModule(String name) const;
+                    std::vector<elrond::runtime::ModuleHandleP> instances;
+                    std::vector<elrond::runtime::ChannelManagerP> chmgrs;
+
+                    ModuleHandleP findModule(elrond::String name) const;
                     void startModules();
                     void stopModules();
 
-                    static elrond::runtime::ModuleFactoryP findFactory(String name, elrond::runtime::ModulesFactoriesV& factories, elrond::interfaces::RuntimeInterface* app);
+                    static elrond::runtime::ModuleFactoryP findFactory(
+                        elrond::String& name,
+                        elrond::runtime::ModulesFactoriesV& factories,
+                        elrond::interface::Runtime* app
+                    );
 
                 public:
 
-                    RuntimeApp(elrond::interfaces::DebugOutInterface& dout);
+                    RuntimeApp(elrond::interface::DebugOut& dout);
                     virtual ~RuntimeApp();
 
-                    ModuleInfo const& defineModule(String name, String type, ModulesFactoriesV& factories);
-                    void initModule(String name, elrond::interfaces::ConfigMapInterface &cm) const;
-                    elrond::runtime::ChannelManagerP defineChannelManager(String transport, const elrond::sizeT tx, const elrond::sizeT rx, const elrond::sizeT fps);
+                    ModuleInfo const& defineModule(
+                        elrond::String name,
+                        elrond::String type,
+                        elrond::runtime::ModulesFactoriesV& factories
+                    );
+
+                    void initModule(
+                        elrond::String name,
+                        elrond::interface::ConfigMap& cm
+                    ) const;
+
+                    elrond::runtime::ChannelManagerP defineChannelManager(
+                        elrond::String transport,
+                        const elrond::sizeT tx,
+                        const elrond::sizeT rx,
+                        const elrond::sizeT fps
+                    );
 
                     void start();
-                    void loop(std::function<bool(void)> continueHandle);
-                    void stop(bool force = false);
+                    void loop(ELROND_LAMBDA_FUNC(bool, void) continueHandle);
+                    void stop(const bool force = false);
 
-                    elrond::modules::BaseGpioModule &getGpioService() const override;
-                    elrond::modules::BaseInputDriverModule &getInputService(const elrond::sizeT id) const override;
-                    elrond::channel::BaseChannelManager& getChannelManager(const elrond::sizeT id) const override;
-                    const elrond::interfaces::DebugOutInterface &dout() const override;
-                    void onError(const char *error) override;
+                    elrond::module::BaseGpioModule& getGpioService() const override;
+                    elrond::module::BaseInputDriverModule& getInputService(const elrond::sizeT id = 0) const override;
+                    elrond::channel::BaseChannelManager& getChannelManager(const elrond::sizeT id = 0) const override;
+                    const elrond::interface::DebugOut& dout() const override;
+
+                    void onError(const char* error) override;
+                    void onError(elrond::String error) override;
 
                     static elrond::runtime::ModulesFactoriesV newModulesFactories();
             };

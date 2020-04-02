@@ -3,23 +3,22 @@
 
     #include "elrond-runtime.hpp"
 
-    class VirtualGpio : public elrond::modules::BaseGpioModule {
+    class VirtualGpio : public elrond::module::BaseGpioModule {
 
         public:
 
             virtual ~VirtualGpio();
 
-            void onInit(elrond::interfaces::ConfigMapInterface& cfg) override;
+            void onInit(elrond::interface::ConfigMap& cfg, elrond::LoopControl& lc) override;
             void attach(elrond::gpio::BaseGpioPin& pin) override;
 
-            static const char* _getInternalName();
-            static const char* _infoMainClassName();
-            static int _infoApiVersion();
-            static int _infoApiRevision();
-            static const char* _infoPrettyName();
-            static const char* _infoAuthorName();
-            static const char* _infoAuthorEmail();
-            static const char* _infoVersion();
+            ELROND_DEFINE_INTER_MOD_DEF_FUNCS;
     };
+
+    namespace elrond {
+        namespace runtime {
+            using VirtualGpio = VirtualGpio;
+        }
+    }
 
 #endif

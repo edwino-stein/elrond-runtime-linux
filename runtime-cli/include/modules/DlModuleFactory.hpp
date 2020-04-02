@@ -7,23 +7,23 @@
 
         protected:
 
-            using dlModCreateT = elrond::interfaces::ModuleInterface* (*)();
-            using dlModDestroyT = void (*)(elrond::interfaces::ModuleInterface*);
-            using dlModSetAppT = void (*)(elrond::interfaces::RuntimeInterface*);
-            using dlModStringHandleT = const char* (*)();
-            using dlModIntHandleT = int (*)();
+            using ModSetAppT = void (*)(ELROND_MOD_INFO_APP_P);
+            using ModNewT = ELROND_MOD_INFO_MOD_P (*)();
+            using ModDeleteT = void (*)(ELROND_MOD_INFO_MOD_P);
+            using ModStringHandleT = ELROND_MOD_INFO_STR_T (*)();
+            using ModNumHandleT = ELROND_MOD_INFO_NUM_T (*)();
 
             void* dlHandle = nullptr;
-            dlModCreateT _getInstance = nullptr;
-            dlModDestroyT _deleteInstance = nullptr;
+            ModNewT _newInstance = nullptr;
+            ModDeleteT _delInstance = nullptr;
 
         public:
 
-            DlModuleFactory(String name, elrond::interfaces::RuntimeInterface* app);
+            DlModuleFactory(elrond::String path, elrond::interface::Runtime& app);
             virtual ~DlModuleFactory();
 
-            elrond::interfaces::ModuleInterface* getInstance(String const& instName) override;
-            void deleteInstance(elrond::interfaces::ModuleInterface* mod) override;
+            elrond::interface::Module* newInstance(elrond::String const& instName) override;
+            void deleteInstance(elrond::interface::Module* inst) override;
     };
 
 #endif
