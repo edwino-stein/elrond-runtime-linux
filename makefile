@@ -1,8 +1,13 @@
-# Main settings
-PROJECT_NAME = elrond-runtime
+# Include config file
+include Config.mk
 
-BASE_RT_DIR = runtime-base
-CLI_RT_DIR = runtime-cli
+BUILD_DIR := $(notdir $(BUILD_DIR))
+
+ELROND_DIR := $(notdir $(ELROND_DIR))
+# If has a dev version of the ECL in the project, use it
+ifeq ($(shell test -L $(ELROND_DIR)-dev -o -d $(ELROND_DIR)-dev; echo $$?), 0)
+    ELROND_DIR := $(ELROND_DIR)-dev
+endif
 
 .PHONY: all clean clean-all run
 .DEFAULT_GOAL := all
@@ -10,35 +15,32 @@ CLI_RT_DIR = runtime-cli
 # Set JSON config file to run rule
 cfg?=teste.json
 
-.PHONY: all clean run clean-base clean-cli $(PROJECT_NAME) $(PROJECT_NAME)-wdl lib$(PROJECT_NAME).a lib$(PROJECT_NAME).so
+.PHONY: all clean run clean-base clean-cli clean-all $(RUNTIME_LIB_DYNAMIC_NAME) $(RUNTIME_LIB_STATIC_NAME) $(RUNTIME_CLI_PROG_NAME)
 
 # *********************************** RULES ************************************
 
-all: lib$(PROJECT_NAME).a lib$(PROJECT_NAME).so $(PROJECT_NAME) $(PROJECT_NAME)-wdl
+all: $(RUNTIME_LIB_DYNAMIC_NAME) $(RUNTIME_LIB_STATIC_NAME) $(RUNTIME_CLI_PROG_NAME)
 
-run: $(PROJECT_NAME)
-	./build/$(CLI_RT_DIR)/$(PROJECT_NAME) $(cfg)
+$(RUNTIME_LIB_DYNAMIC_NAME):
+	@cd $(RUNTIME_LIB_DIR) && $(MAKE) $@
 
-run-wdl: $(PROJECT_NAME)-wdl
-	./build/$(CLI_RT_DIR)/$(PROJECT_NAME)-wdl $(cfg)
+$(RUNTIME_LIB_STATIC_NAME):
+	@cd $(RUNTIME_LIB_DIR) && $(MAKE) $@
 
-$(PROJECT_NAME):
-	@cd $(CLI_RT_DIR) && $(MAKE) $(notdir $@)
+$(RUNTIME_CLI_PROG_NAME):
+	@cd $(RUNTIME_CLI_DIR) && $(MAKE) $@
 
-$(PROJECT_NAME)-wdl:
-	@cd $(CLI_RT_DIR) && $(MAKE) $(notdir $@)
-
-lib$(PROJECT_NAME).a:
-	@cd $(BASE_RT_DIR) && $(MAKE) $(notdir $@)
-
-lib$(PROJECT_NAME).so:
-	@cd $(BASE_RT_DIR) && $(MAKE) $(notdir $@)
+run: $(RUNTIME_CLI_PROG_NAME)
+	./$(BUILD_DIR)/$(RUNTIME_CLI_DIR)/$^ $(cfg)
 
 clean:
 	rm -rf build
 
 clean-base:
-	@cd $(BASE_RT_DIR) && $(MAKE) clean
+	@cd $(RUNTIME_LIB_DIR) && $(MAKE) clean
 
 clean-cli:
-	@cd $(CLI_RT_DIR) && $(MAKE) clean
+	@cd $(RUNTIME_CLI_DIR) && $(MAKE) clean
+
+clean-all: clean
+	@cd $(ELROND_DIR) && $(MAKE) clean
