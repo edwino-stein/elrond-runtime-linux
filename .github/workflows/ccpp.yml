@@ -1,0 +1,25 @@
+name: Build and test
+
+on: [push]
+
+jobs:
+    build-and-test-linux:
+        name: Build and test on ${{matrix.os}}
+        runs-on: ${{ matrix.os }}
+
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+        steps:
+            - name: Checkout respository
+              uses: actions/checkout@v1
+            - name: Checkout submodules
+              uses: srt32/git-actions@v0.0.3
+              with:
+                args: git submodule update --init --recursive
+            - name: Building everything
+              run: make all -j4
+            - name: Building and doing all tests of runtime-lib
+              run: make test-lib-all a="-s -d yes" -j4
+            - name: Building and doing all tests of runtime-cli
+              run: make test-cli-all a="-s -d yes" -j4
