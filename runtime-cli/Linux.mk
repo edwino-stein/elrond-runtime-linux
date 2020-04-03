@@ -5,13 +5,10 @@
 # Define object files
 OBJS_FILES = $(subst $(SRC_DIR)/,$(BUILD_DIR)/,$(SRC_FILES))
 OBJS := $(addsuffix .$(OBJ_EXT), $(OBJS_FILES))
-
-# Set test objects
-OBJ_TEST_FILES = $(subst $(SRC_DIR)/,$(BUILD_DIR)/,$(SRC_TEST_FILES))
-OBJS_TEST := $(addsuffix .$(OBJ_EXT), $(OBJ_TEST_FILES))
+MAIN_OBJ = $(BUILD_DIR)/main.$(CPP_SRC_EXT).$(OBJ_EXT)
 
 # Define dependencies files
-DEPS = $(OBJS:.$(OBJ_EXT)=.$(DEP_EXT)) $(OBJS_TEST:.$(OBJ_EXT)=.$(DEP_EXT))
+DEPS = $(OBJS:.$(OBJ_EXT)=.$(DEP_EXT)) $(MAIN_OBJ:.$(OBJ_EXT)=.$(DEP_EXT))
 
 # Add includes and macros to compiler options
 CXXFLAGS += $(addprefix -I, $(INCLUDES))
@@ -25,19 +22,22 @@ LDLIBS += $(addprefix -l, $(DYNAMIC_LIBRARIES))
 
 ################################## BUILD RULES #################################
 
-$(RUNTIME_CLI_PROG_NAME): $(BUILD_DIR)/$(RUNTIME_CLI_PROG_NAME)
-$(BUILD_DIR)/$(RUNTIME_CLI_PROG_NAME): $(OBJS) $(BUILD_DIR)/$(RUNTIME_LIB_DYNAMIC_NAME)
+# Runtime binary builder
+$(RUNTIME_CLI_PROG_NAME): $(RUNTIME_CLI_PROG)
+$(RUNTIME_CLI_PROG): $(RUNTIME_CLI_STATIC_NAME) $(MAIN_OBJ) $(RUNTIME_LIB_DYNAMIC_NAME)
 	@mkdir -p $(@D)
-	$(CXX) $(LDFLAGS) $(OBJS) -o $@ $(LDLIBS)
+	$(CXX) $(LDFLAGS) $(OBJS) $(MAIN_OBJ) $(BUILD_DIR)/$(RUNTIME_CLI_STATIC_NAME) -o $@ $(LDLIBS)
+
+# Static library builder
+$(RUNTIME_CLI_STATIC_NAME): $(BUILD_DIR)/$(RUNTIME_CLI_STATIC_NAME)
+$(BUILD_DIR)/$(RUNTIME_CLI_STATIC_NAME): $(OBJS)
+	@mkdir -p $(@D)
+	$(AR) $(ARFLAGS) $@ $?
 
 # Objects builder
 $(BUILD_DIR)/%.$(CPP_SRC_EXT).$(OBJ_EXT): $(SRC_DIR)/%.$(CPP_SRC_EXT)
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $< -o $@
 
-# Runtime Base libary
-$(BUILD_DIR)/$(RUNTIME_LIB_DYNAMIC_NAME): $(RUNTIME_LIB_SHARED)
-	cp $^ $(RUNTIME_LIB_BUILD_DIR)/$(ELROND_SHARED_LIB_NAME) $(BUILD_DIR)
-
-$(RUNTIME_LIB_SHARED):
-	@cd $(RUNTIME_LIB_DIR) && $(MAKE) $(notdir $@)
+# Include all .d files
+-include $(DEPS)

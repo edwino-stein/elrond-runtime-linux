@@ -20,7 +20,16 @@ using elrond::runtime::InternalModuleFactory;
 using elrond::runtime::ModuleInfo;
 using elrond::runtime::Exception;
 
-int main(int argc, char const* argv[])
+elrond::runtime::ModuleInfo appInfo = {
+    .mainClass = "RuntimeApp",
+    .apiVer = ELROND_API_VERSION,
+    .prettyName = "Elrond Runtime for Linux",
+    .authorName = "Edwino Stein",
+    .authorEmail = "edwino.stein@gmail.com",
+    .version = ELROND_API_VERSION_STR
+};
+
+int run(int argc, char const* argv[])
 {
     OStreamDebugOut dout(std::cout);
     RuntimeApp app(dout);
